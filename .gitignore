@@ -1,0 +1,6 @@
+/node_modules
+/yarn-error.log
+/package-lock.json
+/dist
+/build
+/src/config.ts
