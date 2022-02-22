@@ -25,18 +25,19 @@ const configPath = `${basePath}/src/config.ts`;
 // Build directories
 const buildDirPath = `${basePath}/build/`;
 const wokasDirPath = `${buildDirPath}wokas/`;
+export const dataDirPath = `${buildDirPath}data/`;
 const cropsDirPath = `${buildDirPath}crops/`;
 const avatarsDirPath = `${buildDirPath}avatars/`;
-export const dataDirPath = `${buildDirPath}data/`;
+
+// Assets directories
 const backgroundDirPath = `${basePath}/assets/backgrounds/`;
 const layersDirPath = `${basePath}/assets/layers/`;
 
 const loadedBackgrounds: string[] = [];
-
 const loadedLayers: LoadedLayers = {
 	body: [],
 	eyes: [],
-	hairs: [],
+	hair: [],
 	clothes: [],
 	hat: [],
 	accessory: [],
@@ -172,7 +173,7 @@ async function generateWoka(edition: number): Promise<Woka> {
 		const parts: WokaParts = {
 			body: getRandomPart(loadedLayers.body),
 			eyes: getRandomPart(loadedLayers.eyes),
-			hairs: getRandomPart(loadedLayers.hairs),
+			hair: getRandomPart(loadedLayers.hair),
 			clothes: getRandomPart(loadedLayers.clothes),
 			hat: getRandomPart(loadedLayers.hat),
 			accessory: getRandomPart(loadedLayers.accessory),
