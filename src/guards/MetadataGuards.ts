@@ -1,36 +1,27 @@
-import * as tg from "generic-type-guard";
+import { z } from "zod";
 
-export const isMetadataAttribute = new tg.IsInterface()
-    .withProperties({
-        trait_type: tg.isString,
-        value: tg.isString,
-    })
-    .get();
+export const isMetadataAttribute = z.object({
+    trait_type: z.string(),
+    value: z.string(),
+});
+export type MetadataAttribute = z.infer<typeof isMetadataAttribute>;
 
-export type MetadataAttribute = tg.GuardedType<typeof isMetadataAttribute>;
+export const isEthereumMetadata = z.object({
+    name: z.string(),
+    description: z.string(),
+    image: z.string(),
+    dna: z.string(),
+    edition: z.number(),
+    attributes: z.array(isMetadataAttribute),
+});
+export type EthereumMetadata = z.infer<typeof isEthereumMetadata>;
 
-export const isEthereumMetadata = new tg.IsInterface()
-    .withProperties({
-        name: tg.isString,
-        description: tg.isString,
-        image: tg.isString,
-        dna: tg.isString,
-        edition: tg.isNumber,
-        attributes: tg.isArray(isMetadataAttribute),
-    })
-    .get();
-
-export type EthereumMetadata = tg.GuardedType<typeof isEthereumMetadata>;
-
-export const isAvalancheMetadata = new tg.IsInterface()
-    .withProperties({
-        name: tg.isString,
-        description: tg.isString,
-        image: tg.isString,
-        dna: tg.isString,
-        edition: tg.isNumber,
-        attributes: tg.isArray(isMetadataAttribute),
-    })
-    .get();
-
-export type AvalancheMetadata = tg.GuardedType<typeof isAvalancheMetadata>;
+export const isAvalancheMetadata = z.object({
+    name: z.string(),
+    description: z.string(),
+    image: z.string(),
+    dna: z.string(),
+    edition: z.number(),
+    attributes: z.array(isMetadataAttribute),
+});
+export type AvalancheMetadata = z.infer<typeof isAvalancheMetadata>;

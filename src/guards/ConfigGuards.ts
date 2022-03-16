@@ -1,119 +1,88 @@
-import * as tg from "generic-type-guard";
+import { z } from "zod";
 
-export const isConfigCollectionBackgroundColor = new tg.IsInterface()
-    .withProperties({
-        hex: tg.isString,
-        alpha: tg.isFloat,
-    })
-    .get();
+export const isConfigCollectionBackgroundColor = z.object({
+    hex: z.string(),
+    alpha: z.number().lte(0).gte(1),
+});
+export type ConfigCollectionBackgroundColor = z.infer<typeof isConfigCollectionBackgroundColor>;
 
-export type ConfigCollectionBackgroundColor = tg.GuardedType<typeof isConfigCollectionBackgroundColor>;
+export const isConfigCollectionBackground = z.object({
+    method: z.enum(["image", "linked", "color", "none"]),
+    color: isConfigCollectionBackgroundColor.optional(),
+});
+export type ConfigCollectionBackground = z.infer<typeof isConfigCollectionBackground>;
 
-export const isConfigCollectionBackground = new tg.IsInterface()
-    .withProperties({
-        method: tg.isSingletonStringUnion("image", "linked", "color", "none"),
-    })
-    .withOptionalProperties({
-        color: isConfigCollectionBackgroundColor,
-    })
-    .get();
+export const isConfigCollectionRarityEdges = z.object({
+    min: z.number().positive(),
+    max: z.number().positive(),
+});
+export type ConfigCollectionRarityEdges = z.infer<typeof isConfigCollectionRarityEdges>;
 
-export type ConfigCollectionBackground = tg.GuardedType<typeof isConfigCollectionBackground>;
+export const isConfigCollectionRarity = z.object({
+    method: z.enum(["random", "delimiter", "none"]),
+    edges: isConfigCollectionRarityEdges.optional(),
+});
+export type ConfigCollectionRarity = z.infer<typeof isConfigCollectionRarity>;
 
-export const isConfigCollectionRarityEdges = new tg.IsInterface()
-    .withProperties({
-        min: tg.isFiniteNumber,
-        max: tg.isFiniteNumber,
-    })
-    .get();
+export const isConfigCollectionCropMarging = z.object({
+    left: z.number().positive(),
+    right: z.number().positive(),
+    top: z.number().positive(),
+    bottom: z.number().positive(),
+});
+export type ConfigCollectionCropMarging = z.infer<typeof isConfigCollectionCropMarging>;
 
-export type ConfigCollectionRarityEdges = tg.GuardedType<typeof isConfigCollectionRarityEdges>;
+export const isConfigCollectionCrop = z.object({
+    size: z.number().positive(),
+    marging: isConfigCollectionCropMarging.optional(),
+});
+export type ConfigCollectionCrop = z.infer<typeof isConfigCollectionCrop>;
 
-export const isConfigCollectionRarity = new tg.IsInterface()
-    .withProperties({
-        method: tg.isSingletonStringUnion("random", "delimiter", "none"),
-    })
-    .withOptionalProperties({
-        edges: isConfigCollectionRarityEdges,
-    })
-    .get();
+export const isConfigCollection = z.object({
+    size: z.number().positive(),
+    crop: isConfigCollectionCrop.optional(),
+    rarity: isConfigCollectionRarity.optional(),
+    background: isConfigCollectionBackground.optional(),
+});
+export type ConfigCollection = z.infer<typeof isConfigCollection>;
 
-export type ConfigCollectionRarity = tg.GuardedType<typeof isConfigCollectionRarity>;
+export const isConfigBlockchainMetadataName = z.object({
+    prefix: z.string().optional(),
+    suffix: z.string().optional(),
+});
+export type ConfigBlockchainMetadataName = z.infer<typeof isConfigBlockchainMetadataName>;
 
-export const isConfigCollectionCropMarging = new tg.IsInterface()
-    .withOptionalProperties({
-        left: tg.isFiniteNumber,
-        right: tg.isFiniteNumber,
-        top: tg.isFiniteNumber,
-        bottom: tg.isFiniteNumber,
-    })
-    .get();
+export const isConfigBlockchainAvalancheMetadata = z.object({
+    name: isConfigBlockchainMetadataName.optional(),
+    description: z.string(),
+    image: z.string(),
+});
+export type ConfigBlockchainAvalancheMetadata = z.infer<typeof isConfigBlockchainAvalancheMetadata>;
 
-export type ConfigCollectionCropMarging = tg.GuardedType<typeof isConfigCollectionCropMarging>;
+export const isConfigBlockchainAvalanche = z.object({
+    type: z.enum(['avalanche']),
+    metadata: isConfigBlockchainAvalancheMetadata,
+});
+export type ConfigBlockchainAvalanche = z.infer<typeof isConfigBlockchainAvalanche>;
 
-export const isConfigCollectionCrop = new tg.IsInterface()
-    .withOptionalProperties({
-        size: tg.isFiniteNumber,
-        marging: isConfigCollectionCropMarging,
-    })
-    .get();
+export const isConfigBlockchainEthereumMetadata = z.object({
+    name: isConfigBlockchainMetadataName.optional(),
+    description: z.string(),
+    image: z.string(),
+});
+export type ConfigBlockchainEthereumMetadata = z.infer<typeof isConfigBlockchainEthereumMetadata>;
 
-export type ConfigCollectionCrop = tg.GuardedType<typeof isConfigCollectionCrop>;
+export const isConfigBlockchainEthereum = z.object({
+    type: z.enum(['ethereum']),
+    metadata: isConfigBlockchainEthereumMetadata,
+});
+export type ConfigBlockchainEthereum = z.infer<typeof isConfigBlockchainEthereum>;
 
-export const isConfigCollection = new tg.IsInterface()
-    .withProperties({
-        size: tg.isFiniteNumber,
-        crop: isConfigCollectionCrop,
-        rarity: isConfigCollectionRarity,
-        background: isConfigCollectionBackground,
-    })
-    .get();
+export const isConfigBlockchain = z.union([isConfigBlockchainEthereum, isConfigBlockchainAvalanche]);
+export type ConfigBlockchain = z.infer<typeof isConfigBlockchain>;
 
-export type ConfigCollection = tg.GuardedType<typeof isConfigCollection>;
-
-export const isConfigBlockchainMetadataName = new tg.IsInterface()
-    .withOptionalProperties({
-        prefix: tg.isString,
-        suffix: tg.isString,
-    })
-    .get();
-
-export type ConfigBlockchainMetadataName = tg.GuardedType<typeof isConfigBlockchainMetadataName>;
-
-export const isConfigBlockchainAvalancheMetadata = new tg.IsInterface()
-    .withProperties({
-        name: isConfigBlockchainMetadataName,
-        description: tg.isString,
-        image: tg.isString,
-    })
-    .get();
-
-export type ConfigBlockchainAvalancheMetadata = tg.GuardedType<typeof isConfigBlockchainAvalancheMetadata>;
-
-export const isConfigBlockchainEthereumMetadata = new tg.IsInterface()
-    .withProperties({
-        name: isConfigBlockchainMetadataName,
-        description: tg.isString,
-        image: tg.isString,
-    })
-    .get();
-
-export type ConfigBlockchainEthereumMetadata = tg.GuardedType<typeof isConfigBlockchainEthereumMetadata>;
-
-export const isConfigBlockchain = new tg.IsInterface()
-    .withProperties({
-        type: tg.isSingletonStringUnion("ethereum", "avalanche"),
-        metadata: tg.isUnion(isConfigBlockchainEthereumMetadata, isConfigBlockchainAvalancheMetadata),
-    })
-    .get();
-
-export type ConfigBlockchain = tg.GuardedType<typeof isConfigBlockchain>;
-
-export const isConfig = new tg.IsInterface()
-    .withProperties({
-        blockchain: isConfigBlockchain,
-        collection: isConfigCollection,
-    })
-    .get();
-
-export type Config = tg.GuardedType<typeof isConfig>;
+export const isConfig = z.object({
+    blockchain: isConfigBlockchain,
+    collection: isConfigCollection,
+});
+export type Config = z.infer<typeof isConfig>;

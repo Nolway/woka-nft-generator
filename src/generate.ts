@@ -51,11 +51,8 @@ async function run(): Promise<void> {
 	}
 
 	const configFile = await import(configPath);
-	if (!isConfig(configFile.default)) {
-		throw new Error("config.ts has a bad format");
-	}
 
-	const config = configFile.default;
+	const config = isConfig.parse(configFile.default);
 
 	if (fs.existsSync(buildDirPath)) {
 		fs.rmSync(buildDirPath, { recursive: true, force: true });
@@ -90,23 +87,29 @@ function checkBuildDirectories() {
 
 async function generate(config: Config): Promise<void> {
 	await loadLayers(config.collection.rarity);
+
+	const max = maxCombination();
+
+	console.log(`${max} combinations can be generated`);
+
+	if (max < config.collection.size) {
+		throw new Error(`You want to generate a collection of ${config.collection.size} Woka but you can only generate ${max}`);
+	}
+
 	await generateWokas(config);
 	await generateCrops(config.collection.crop);
 	await generateAvatars(config.collection.background);
 }
 
-async function loadLayers(config: ConfigCollectionRarity): Promise<void> {
+async function loadLayers(config: ConfigCollectionRarity|undefined): Promise<void> {
 	for (const layer of Object.keys(loadedLayers)) {
-		if (!isLayer(layer)) {
-			throw new Error(`${layer} isn't a existant layer`);
-		}
-		await loadLayer(config, layer);
+		await loadLayer(config, isLayer.parse(layer));
 	}
 
 	console.log(chalk.green("All layers assets has been loaded"));
 }
 
-async function loadLayer(config: ConfigCollectionRarity, layer: Layer): Promise<void> {
+async function loadLayer(config: ConfigCollectionRarity|undefined, layer: Layer): Promise<void> {
 	const layerDirPath = layersDirPath + layer + "/";
 	const files = await fs.promises.readdir(layerDirPath);
 
@@ -126,25 +129,29 @@ async function loadLayer(config: ConfigCollectionRarity, layer: Layer): Promise<
 		let weight = 100;
 		let name = "";
 
-		switch (config.method) {
-		case "delimiter": {
-			const nameSplited = parts[0].split("#");
-			name = nameSplited[0];
-			weight = Number(nameSplited.pop());
-			if (isNaN(weight)) {
-				weight = 100;
+		if (config) {
+			switch (config.method) {
+				case "delimiter": {
+					const nameSplited = parts[0].split("#");
+					name = nameSplited[0];
+					weight = Number(nameSplited.pop());
+					if (isNaN(weight)) {
+						weight = 100;
+					}
+					break;
+				}
+				case "random": {
+					name = parts[0];
+					weight = Math.floor(Math.random() * 100);
+					break;
+				}
+				case "none": {
+					name = parts[0];
+					break;
+				}
 			}
-			break;
-		}
-		case "random": {
+		} else {
 			name = parts[0];
-			weight = Math.floor(Math.random() * 100);
-			break;
-		}
-		case "none": {
-			name = parts[0];
-			break;
-		}
 		}
 
 		loadedLayers[layer].push({
@@ -155,6 +162,17 @@ async function loadLayer(config: ConfigCollectionRarity, layer: Layer): Promise<
 	}
 
 	console.log(`${layer} layer has been loaded`);
+}
+
+function maxCombination() {
+	let max = 0;
+
+	for (const layer of Object.keys(loadedLayers)) {
+		const assetCount = loadedLayers[isLayer.parse(layer)].length;
+		max = max === 0 ? assetCount : max * assetCount;
+	}
+
+	return max;
 }
 
 async function generateWokas(config: Config): Promise<void> {
@@ -203,11 +221,7 @@ function generateDna(parts: WokaParts): string {
 	let composition = "";
 
 	for (const layer of Object.keys(parts)) {
-		if (!isLayer(layer)) {
-			throw new Error(`Unknown layer ${layer}`);
-		}
-
-		composition += (composition === "" ? "" : "-") + parts[layer].name;
+		composition += (composition === "" ? "" : "-") + parts[isLayer.parse(layer)].name;
 	}
 
 	return sha1(composition);
@@ -244,11 +258,7 @@ async function generateWokaFile(woka: Woka, edition: number): Promise<void> {
 	const layers: sharp.OverlayOptions[] = [];
 
 	for (const layer of Object.keys(woka.parts)) {
-		if (!isLayer(layer)) {
-			throw new Error(`Unknown layer ${layer}`);
-		}
-
-		const partFile = woka.parts[layer].file;
+		const partFile = woka.parts[isLayer.parse(layer)].file;
 
 		if (!partFile) {
 			continue;
@@ -298,7 +308,7 @@ async function generateData(config: ConfigBlockchain, edition: number, woka: Wok
 	console.log(`Edition ${edition} metadata has been generated`);
 }
 
-async function generateAvatars(config: ConfigCollectionBackground): Promise<void> {
+async function generateAvatars(config: ConfigCollectionBackground|undefined): Promise<void> {
 	// Search all backgrounds
 	const backgroundFiles = await fs.promises.readdir(backgroundDirPath);
 
@@ -333,7 +343,7 @@ async function generateAvatars(config: ConfigCollectionBackground): Promise<void
 	console.log(chalk.green("All avatars has been generated"));
 }
 
-async function generateCrops(config: ConfigCollectionCrop): Promise<void> {
+async function generateCrops(config: ConfigCollectionCrop|undefined): Promise<void> {
 	const files = await fs.promises.readdir(wokasDirPath);
 
 	for (const file of sortNumFiles(files)) {
@@ -355,7 +365,7 @@ async function generateCrops(config: ConfigCollectionCrop): Promise<void> {
 	console.log(chalk.green("All crops has been generated"));
 }
 
-async function generateCrop(config: ConfigCollectionCrop, file: string): Promise<void> {
+async function generateCrop(config: ConfigCollectionCrop|undefined, file: string): Promise<void> {
 	const sharpFile = sharp(wokasDirPath + file).extract({
 		left: 32,
 		top: 0,
@@ -363,13 +373,13 @@ async function generateCrop(config: ConfigCollectionCrop, file: string): Promise
 		height: 32,
 	});
 
-	if (config.size) {
+	if (config && config.size) {
 		sharpFile.resize(config.size, config.size, {
 			kernel: sharp.kernel.nearest,
 		});
 	}
 
-	if (config.marging) {
+	if (config && config.marging) {
 		sharpFile.extend({
 			top: config.marging.top,
 			bottom: config.marging.bottom,
@@ -384,59 +394,63 @@ async function generateCrop(config: ConfigCollectionCrop, file: string): Promise
 	console.log(`Edition ${file} crop has been created!`);
 }
 
-async function generateAvatar(config: ConfigCollectionBackground, file: string): Promise<void> {
-	switch (config.method) {
-	case "image": {
-		if (loadedBackgrounds.length < 1) {
-			throw new Error("You don't have any background in the assets folder");
-		}
+async function generateAvatar(config: ConfigCollectionBackground|undefined, file: string): Promise<void> {
+	if (config) {
+		switch (config.method) {
+			case "image": {
+				if (loadedBackgrounds.length < 1) {
+					throw new Error("You don't have any background in the assets folder");
+				}
 
-		await sharp(loadedBackgrounds[Math.floor(Math.random() * (loadedBackgrounds.length - 1))])
-			.composite([{ input: cropsDirPath + file, gravity: "centre" }])
-			.toFile(avatarsDirPath + file);
-		break;
-	}
-	case "linked": {
-		await sharp(backgroundDirPath + file)
-			.composite([{ input: cropsDirPath + file, gravity: "centre" }])
-			.toFile(avatarsDirPath + file);
-		break;
-	}
-	case "color": {
-		if (!config.color) {
-			throw new Error("Undefined color property for \"color\" background method");
-		}
-
-		const background: sharp.Color = {
-			r: undefined,
-			g: undefined,
-			b: undefined,
-			alpha: undefined,
-		};
-
-		if (config.color.hex) {
-			const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(config.color.hex);
-			if (result) {
-				background.r = parseInt(result[1], 16);
-				background.g = parseInt(result[2], 16);
-				background.b = parseInt(result[3], 16);
+				await sharp(loadedBackgrounds[Math.floor(Math.random() * (loadedBackgrounds.length - 1))])
+					.composite([{ input: cropsDirPath + file, gravity: "centre" }])
+					.toFile(avatarsDirPath + file);
+				break;
 			}
-		}
+			case "linked": {
+				await sharp(backgroundDirPath + file)
+					.composite([{ input: cropsDirPath + file, gravity: "centre" }])
+					.toFile(avatarsDirPath + file);
+				break;
+			}
+			case "color": {
+				if (!config.color) {
+					throw new Error("Undefined color property for \"color\" background method");
+				}
 
-		if (config.color.alpha) {
-			background.alpha = config.color.alpha;
-		}
+				const background: sharp.Color = {
+					r: undefined,
+					g: undefined,
+					b: undefined,
+					alpha: undefined,
+				};
 
-		await sharp(cropsDirPath + file)
-			.removeAlpha()
-			.flatten({ background })
-			.toFile(avatarsDirPath + file);
-		break;
-	}
-	case "none": {
+				if (config.color.hex) {
+					const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(config.color.hex);
+					if (result) {
+						background.r = parseInt(result[1], 16);
+						background.g = parseInt(result[2], 16);
+						background.b = parseInt(result[3], 16);
+					}
+				}
+
+				if (config.color.alpha) {
+					background.alpha = config.color.alpha;
+				}
+
+				await sharp(cropsDirPath + file)
+					.removeAlpha()
+					.flatten({ background })
+					.toFile(avatarsDirPath + file);
+				break;
+			}
+			case "none": {
+				await sharp(cropsDirPath + file).toFile(avatarsDirPath + file);
+				break;
+			}
+			}
+	} else {
 		await sharp(cropsDirPath + file).toFile(avatarsDirPath + file);
-		break;
-	}
 	}
 
 	console.log(`Edition ${file} avatar has been generated`);
@@ -451,12 +465,8 @@ function sortNumFiles(files: string[]) {
 run()
 	.then(() => {
 		for (const layer of Object.keys(loadedLayers)) {
-			if (!isLayer(layer)) {
-				throw new Error(`${layer} isn't a existant layer`);
-			}
-
 			console.log("\n" + chalk.bold(`${layer.charAt(0).toUpperCase() + layer.slice(1)} parts rarity:`));
-			console.table(loadedLayers[layer], ["name", "weight"]);
+			console.table(loadedLayers[isLayer.parse(layer)], ["name", "weight"]);
 		}
 
 		console.log("\n" + chalk.bold("Generated Wokas:"));

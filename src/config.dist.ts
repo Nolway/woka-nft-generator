@@ -56,6 +56,7 @@ const config: Config = {
         background: {
             /**
              * Optional: Method for adding a background (transparent by default)
+             * none: Transparent background.
              * image: Get a random background from the backgrounds folder.
              * linked: Use the background with the same name in the backgrounds folder.
              * color: Use a color.

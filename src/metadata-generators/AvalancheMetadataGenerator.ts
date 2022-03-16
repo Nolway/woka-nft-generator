@@ -8,8 +8,16 @@ import { MetadataGenerator } from "./MetadataGenerator";
 
 export class AvalancheMetadataGenerator implements MetadataGenerator {
     async generate(config: ConfigBlockchain, woka: Woka): Promise<void> {
+        let namePrefix = "";
+        let nameSuffix = "";
+
+        if (config.metadata.name) {
+            namePrefix = config.metadata.name.prefix ?? "";
+            nameSuffix = config.metadata.name.suffix ?? "";
+        }
+
         const metadata: AvalancheMetadata = {
-            name: `${config.metadata.name.prefix}${woka.edition}${config.metadata.name.suffix}`,
+            name: `${namePrefix}${woka.edition}${nameSuffix}`,
             description: config.metadata.description,
             image: `${config.metadata.image}${woka.edition}.png`,
             dna: woka.dna,

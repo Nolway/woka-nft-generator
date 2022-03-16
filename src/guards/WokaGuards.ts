@@ -1,55 +1,38 @@
-import * as tg from "generic-type-guard";
+import { z } from "zod";
 
-export const isWokaPart = new tg.IsInterface()
-	.withProperties({
-		name: tg.isString,
-		weight: tg.isNumber,
-	})
-	.withOptionalProperties({
-		file: tg.isString,
-	})
-	.get();
+export const isWokaPart = z.object({
+    name: z.string(),
+    weight: z.number().nonpositive(),
+	file: z.string().optional(),
+});
+export type WokaPart = z.infer<typeof isWokaPart>;
 
-export type WokaPart = tg.GuardedType<typeof isWokaPart>;
+export const isLayer = z.enum(["body", "eyes", "hair", "clothes", "hat", "accessory"]);
+export type Layer = z.infer<typeof isLayer>;
 
-export type Layer = "body" | "eyes" | "hair" | "clothes" | "hat" | "accessory";
+export const isWokaParts = z.object({
+	body: isWokaPart,
+	eyes: isWokaPart,
+	hair: isWokaPart,
+	clothes: isWokaPart,
+	hat: isWokaPart,
+	accessory: isWokaPart,
+});
+export type WokaParts = z.infer<typeof isWokaParts>;
 
-export function isLayer(layer: string): layer is Layer {
-	return ["body", "eyes", "hair", "clothes", "hat", "accessory"].includes(layer);
-}
+export const isWoka = z.object({
+	edition: z.number().positive(),
+	dna: z.string(),
+	parts: isWokaParts,
+});
+export type Woka = z.infer<typeof isWoka>;
 
-export const isWokaParts = new tg.IsInterface()
-	.withProperties({
-		body: isWokaPart,
-		eyes: isWokaPart,
-		hair: isWokaPart,
-		clothes: isWokaPart,
-		hat: isWokaPart,
-		accessory: isWokaPart,
-	})
-	.get();
-
-export type WokaParts = tg.GuardedType<typeof isWokaParts>;
-
-export const isWoka = new tg.IsInterface()
-	.withProperties({
-		edition: tg.isNumber,
-		dna: tg.isString,
-		parts: isWokaParts,
-	})
-	.get();
-
-export type Woka = tg.GuardedType<typeof isWoka>;
-
-export const isLoadedLayers = new tg.IsInterface()
-	.withProperties({
-		body: tg.isArray(isWokaPart),
-		eyes: tg.isArray(isWokaPart),
-		hair: tg.isArray(isWokaPart),
-		clothes: tg.isArray(isWokaPart),
-		hat: tg.isArray(isWokaPart),
-		accessory: tg.isArray(isWokaPart),
-	})
-	.get();
-
-export type LoadedLayers = tg.GuardedType<typeof isLoadedLayers>;
+export const isLoadedLayers = z.object({
+	body: z.array(isWokaPart),
+	eyes: z.array(isWokaPart),
+	hair: z.array(isWokaPart),
+	clothes: z.array(isWokaPart),
+	hat: z.array(isWokaPart),
+	accessory: z.array(isWokaPart),
+});
+export type LoadedLayers = z.infer<typeof isLoadedLayers>;

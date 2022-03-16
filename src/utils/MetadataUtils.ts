@@ -5,11 +5,7 @@ export function generateAttributes(parts: WokaParts): MetadataAttribute[] {
     const attributes: MetadataAttribute[] = [];
 
     for (const layer of Object.keys(parts)) {
-        if (!isLayer(layer)) {
-            throw new Error(`${layer} isn't a existant layer`);
-        }
-
-        const part = parts[layer];
+        const part = parts[isLayer.parse(layer)];
 
         attributes.push({
             trait_type: layer.toLowerCase().charAt(0).toUpperCase() + layer.slice(1),
