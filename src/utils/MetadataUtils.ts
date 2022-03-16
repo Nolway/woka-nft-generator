@@ -1,17 +1,17 @@
 import { MetadataAttribute } from "../guards/MetadataGuards";
-import { isLayer, WokaParts } from "../guards/WokaGuards";
+import { WokaLayers } from "../guards/WokaGuards";
 
-export function generateAttributes(parts: WokaParts): MetadataAttribute[] {
-    const attributes: MetadataAttribute[] = [];
+export function generateAttributes(parts: WokaLayers): MetadataAttribute[] {
+	const attributes: MetadataAttribute[] = [];
 
-    for (const layer of Object.keys(parts)) {
-        const part = parts[isLayer.parse(layer)];
+	for (const layer of Object.keys(parts)) {
+		const part = parts[layer];
 
-        attributes.push({
-            trait_type: layer.toLowerCase().charAt(0).toUpperCase() + layer.slice(1),
-            value: part.name,
-        });
-    }
+		attributes.push({
+			trait_type: layer.toLowerCase().charAt(0).toUpperCase() + layer.slice(1),
+			value: part.name,
+		});
+	}
 
-    return attributes;
+	return attributes;
 }

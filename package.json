@@ -7,8 +7,8 @@
     "license": "AGPL-3.0",
     "scripts": {
         "dev": "tsc --watch",
-        "generate": "ts-node ./src/generate.ts",
-        "reset": "ts-node ./src/reset.ts",
+        "generate": "ts-node ./src/bin/generate.ts",
+        "reset": "ts-node ./src/bin/reset.ts",
         "lint": "eslint --ext .js,.ts .",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
         "prepare": "husky install"
