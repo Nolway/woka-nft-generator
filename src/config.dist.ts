@@ -14,6 +14,17 @@ const config: Config = {
 			image: "ipfs://mylink/", // Base URI to your avatar files
 		},
 	},
+	ipfs: {
+		service: "pinata", // pinata|moralis
+		auth: {
+			key: "YOUR API KEY",
+			secret: "YOUR SECRET API KEY",
+		},
+		folders: { // Folders where the files will be uploads
+			avatars: "avatars",
+			metadata: "metadata",
+		},
+	},
 	collection: {
 		size: 10, // Number of NFTs to be created
 		layers: [

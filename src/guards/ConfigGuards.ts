@@ -117,8 +117,43 @@ export type ConfigBlockchainEthereum = z.infer<typeof isConfigBlockchainEthereum
 export const isConfigBlockchain = z.union([isConfigBlockchainEthereum, isConfigBlockchainAvalanche]);
 export type ConfigBlockchain = z.infer<typeof isConfigBlockchain>;
 
+export const isConfigIpfsFolders = z.object({
+	avatars: z.string(),
+	metadata: z.string(),
+});
+export type ConfigIpfsFolders = z.infer<typeof isConfigIpfsFolders>;
+
+export const isConfigIpfsMoralisAuth = z.object({
+	key: z.string(),
+});
+export type ConfigIpfsMoralisAuth = z.infer<typeof isConfigIpfsMoralisAuth>;
+
+export const isConfigIpfsMoralis = z.object({
+	service: z.enum(["moralis"]),
+	auth: isConfigIpfsMoralisAuth,
+	folders: isConfigIpfsFolders,
+});
+export type ConfigIpfsMoralis = z.infer<typeof isConfigIpfsMoralis>;
+
+export const isConfigIpfsPinataAuth = z.object({
+	key: z.string(),
+	secret: z.string(),
+});
+export type ConfigIpfsPinataAuth = z.infer<typeof isConfigIpfsPinataAuth>;
+
+export const isConfigIpfsPinata = z.object({
+	service: z.enum(["pinata"]),
+	auth: isConfigIpfsPinataAuth,
+	folders: isConfigIpfsFolders,
+});
+export type ConfigIpfsPinata = z.infer<typeof isConfigIpfsPinata>;
+
+export const isConfigIpfs = z.union([isConfigIpfsPinata, isConfigIpfsMoralis]);
+export type ConfigIpfs = z.infer<typeof isConfigIpfs>;
+
 export const isConfig = z.object({
 	blockchain: isConfigBlockchain,
+	ipfs: isConfigIpfs,
 	collection: isConfigCollection,
 });
 export type Config = z.infer<typeof isConfig>;

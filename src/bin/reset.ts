@@ -1,8 +1,9 @@
 import fs from "fs";
 import chalk from "chalk";
 import { removeBuildDirectory } from "../utils/DirectoryUtils";
+import { buildDirPath } from "../env";
 
-if (fs.existsSync("build")) {
+if (fs.existsSync(buildDirPath)) {
 	removeBuildDirectory();
 	console.log(chalk.green("Build folder has been removed"));
 } else {

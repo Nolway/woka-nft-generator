@@ -1,5 +1,5 @@
 import fs from "fs";
-import { dataDirPath } from "../../env";
+import { metadataDirPath } from "../../env";
 import { ConfigBlockchain } from "../../guards/ConfigGuards";
 import { Metadata } from "../../guards/MetadataGuards";
 import { Woka } from "../../guards/WokaGuards";
@@ -11,7 +11,7 @@ export class MetadataGenerator {
 	constructor(private config: ConfigBlockchain) {}
 
 	public generate(woka: Woka): Metadata {
-		let generator: MetadataGenericGenerator | undefined;
+		let generator: MetadataGenericGenerator;
 
 		switch (this.config.type) {
 		case "ethereum":
@@ -23,13 +23,13 @@ export class MetadataGenerator {
 		}
 
 		if (!generator) {
-			throw new Error(`Undefined metadata generator for ${this.config.type}`);
+			throw new Error(`Unknown metadata generator for ${this.config.type}`);
 		}
 
 		return generator.generate(this.config, woka);
 	}
 
-	public async exportLocal(metadata: Metadata) {
-		await fs.promises.writeFile(`${dataDirPath}${metadata.edition}.json`, JSON.stringify(metadata, null, 2));
+	public static async exportLocal(metadata: Metadata) {
+		await fs.promises.writeFile(`${metadataDirPath}${metadata.edition}.json`, JSON.stringify(metadata, null, 2));
 	}
 }

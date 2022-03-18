@@ -90,7 +90,7 @@ export class AvatarGenerator {
 		return loadedBackgrounds;
 	}
 
-	public async exportLocal(woka: Woka): Promise<void> {
+	public static async exportLocal(woka: Woka): Promise<void> {
 		if (!woka.avatar) {
 			throw new Error(`Undefined avatar on woka edition ${woka.edition}`);
 		}

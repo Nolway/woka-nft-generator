@@ -186,7 +186,7 @@ export class WokaGenerator {
 		}
 	}
 
-	public async exportLocal(woka: Woka): Promise<void> {
+	public static async exportLocal(woka: Woka): Promise<void> {
 		if (!woka.tileset) {
 			throw new Error(`Undefined tileset on woka edition ${woka.edition}`);
 		}
