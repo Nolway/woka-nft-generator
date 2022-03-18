@@ -1,8 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
-import { Config, ConfigCollection, isConfig } from "../guards/ConfigGuards";
+import { Config, ConfigCollection } from "../guards/ConfigGuards";
 import { LoadedLayers, Woka, WokaTexture } from "../guards/WokaGuards";
-import { configPath } from "../env";
 import { layersDirPath } from "../env";
 import { generateBuildDirectories } from "../utils/DirectoryUtils";
 import { maxCombination } from "../utils/LayerUtils";
@@ -10,17 +9,13 @@ import { WokaGenerator } from "../generators/files/WokaGenerator";
 import { MetadataGenerator } from "../generators/files/MetadataGenerator";
 import { CropGenerator } from "../generators/files/CropGenerator";
 import { AvatarGenerator } from "../generators/files/AvatarGenerator";
+import { getLocalConfig } from "../utils/ConfigUtils";
 
 let loadedLayers: LoadedLayers;
 const wokasGenerated: Woka[] = [];
 
 async function run(): Promise<void> {
-	if (!fs.existsSync(configPath)) {
-		throw new Error("No config.ts fund! You can copy the config.dist.ts to config.ts");
-	}
-
-	const configFile = await import(configPath);
-	const config = isConfig.parse(configFile.default);
+	const config = await getLocalConfig();
 
 	generateBuildDirectories();
 
@@ -51,20 +46,20 @@ async function generate(config: Config): Promise<void> {
 
 	for (const woka of wokasGenerated) {
 		await wokaGenerator.generateTileset(woka);
-		await wokaGenerator.exportLocal(woka);
+		await WokaGenerator.exportLocal(woka);
 		console.log(`Edition ${woka.edition} woka has been generated with DNA: ${woka.dna}`);
 
 		const metadata = metadataGenerator.generate(woka);
-		await metadataGenerator.exportLocal(metadata);
+		await MetadataGenerator.exportLocal(metadata);
 		console.log(`Edition ${woka.edition} metadata has been generated`);
 
 		await cropGenerator.generate(woka);
-		await cropGenerator.exportLocal(woka);
+		await CropGenerator.exportLocal(woka);
 		console.log(`Edition ${woka.edition} crop has been created!`);
 
 		const backgrounds = await avatarGenerator.getLocalBackgrounds();
 		await avatarGenerator.generate(woka, backgrounds);
-		await avatarGenerator.exportLocal(woka);
+		await AvatarGenerator.exportLocal(woka);
 		console.log(`Edition ${woka.edition} avatar has been generated`);
 	}
 }

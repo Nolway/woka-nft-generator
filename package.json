@@ -7,14 +7,17 @@
     "license": "AGPL-3.0",
     "scripts": {
         "dev": "tsc --watch",
-        "generate": "ts-node ./src/bin/generate.ts",
-        "reset": "ts-node ./src/bin/reset.ts",
         "lint": "eslint --ext .js,.ts .",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "generate": "ts-node ./src/bin/generate.ts",
+        "ipfs-upload": "ts-node ./src/bin/ipfsUpload.ts",
+        "reset": "ts-node ./src/bin/reset.ts"
     },
     "dependencies": {
+        "axios": "^0.26.1",
         "chalk": "^4.1.2",
+        "form-data": "^4.0.0",
         "pngjs": "^6.0.0",
         "sha1": "^1.1.1",
         "sharp": "^0.30.1",

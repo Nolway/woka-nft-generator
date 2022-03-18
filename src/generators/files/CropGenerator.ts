@@ -44,7 +44,7 @@ export class CropGenerator {
 		woka.crop = await sharpFile.toBuffer();
 	}
 
-	public async exportLocal(woka: Woka): Promise<void> {
+	public static async exportLocal(woka: Woka): Promise<void> {
 		if (!woka.crop) {
 			throw new Error(`Undefined crop on woka edition ${woka.edition}`);
 		}

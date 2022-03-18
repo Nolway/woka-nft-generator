@@ -1,5 +1,5 @@
 import fs from "fs";
-import { avatarsDirPath, buildDirPath, cropsDirPath, dataDirPath, wokasDirPath } from "../env";
+import { avatarsDirPath, buildDirPath, cropsDirPath, metadataDirPath, wokasDirPath } from "../env";
 
 export function removeBuildDirectory() {
 	if (fs.existsSync(buildDirPath)) {
@@ -26,7 +26,7 @@ export function generateBuildDirectories() {
 		fs.mkdirSync(avatarsDirPath);
 	}
 
-	if (!fs.existsSync(dataDirPath)) {
-		fs.mkdirSync(dataDirPath);
+	if (!fs.existsSync(metadataDirPath)) {
+		fs.mkdirSync(metadataDirPath);
 	}
 }
