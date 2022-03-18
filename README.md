@@ -1,6 +1,6 @@
 <h1>Woka NFT Generator 🧙‍♂️</h1>
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-1.1.1-blue.svg?cacheSeconds=2592000" />
+  <img alt="Version" src="https://img.shields.io/badge/version-1.2.0-blue.svg?cacheSeconds=2592000" />
   <a href="LICENSE.txt" target="_blank">
     <img alt="License: AGPL--3.0" src="https://img.shields.io/badge/License-AGPL--3.0-yellow.svg" />
   </a>
@@ -11,6 +11,7 @@ Easily generate your NFT collection from Wokas !
 ## Requirements
 
 -   Node 16.14 <
+-	Yarn 1.22 <
 
 ## Install
 
@@ -48,6 +49,17 @@ const config: Config = {
 			},
 			description: "Awesome Woka", // Description of your NFT
 			image: "ipfs://mylink/", // Base URI to your avatar files
+		},
+	},
+	ipfs: {
+		service: "pinata", // pinata|moralis
+		auth: {
+			key: "YOUR API KEY",
+			secret: "YOUR SECRET API KEY",
+		},
+		folders: { // Folders where the files will be uploads
+			avatars: "avatars",
+			metadata: "metadata",
 		},
 	},
 	collection: {
@@ -161,6 +173,13 @@ yarn run generate
 ```
 
 All files needed for an NFT collection are generated in the **/build** folder.
+
+
+After that you can upload all avatars and metadata on a IPFS node with :
+
+```sh
+yarn run ipfs-upload
+```
 
 If you want to delete all the generated assets, you can do this:
 
