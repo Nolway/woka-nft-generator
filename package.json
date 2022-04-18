@@ -10,9 +10,11 @@
         "lint": "eslint --ext .js,.ts .",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
         "prepare": "husky install",
-        "generate": "ts-node ./src/bin/generate.ts",
+        "generate-collection": "ts-node ./src/bin/generateCollection.ts",
         "ipfs-upload": "ts-node ./src/bin/ipfsUpload.ts",
-        "deploy-contract": "ts-node ./src/bin/generateHardhatConfig.ts && ts-node ./src/bin/deployContract.ts",
+        "generate-contract": "ts-node ./src/bin/generateContract.ts",
+        "generate-hardhat-config": "ts-node ./src/bin/generateHardhatConfig.ts",
+        "deploy-contract": "ts-node ./src/bin/deployContract.ts",
         "reset": "ts-node ./src/bin/reset.ts"
     },
     "dependencies": {

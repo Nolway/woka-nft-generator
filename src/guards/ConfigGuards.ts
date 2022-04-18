@@ -103,11 +103,14 @@ export const isConfigBlockchainEthereumCompile = z.object({
             settings: z.optional(z.unknown()),
         })
     ),
-    contract: z.string(),
+    contract: z.string().regex(/([A-Z][a-z0-9]+)((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?/),
     infos: z.object({
         name: z.string(),
         symbol: z.string(),
         metadata: z.string(),
+        cost: z.number(),
+        max: z.number().gte(0),
+        initial: z.number().gte(0),
     }),
     accounts: z.union([
         z.string().array(),

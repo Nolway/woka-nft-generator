@@ -5,14 +5,14 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract ExampleContract is ERC721Enumerable, Ownable {
+contract ${contractName} is ERC721Enumerable, Ownable {
     using Strings for uint256;
 
     string public baseURI;
     string public baseExtension = ".json";
-    uint256 public cost = 100 ether;
-    uint256 public maxSupply = 1000;
-    uint256 public maxMintAmount = 20;
+    uint256 public cost = ${cost} ether;
+    uint256 public maxSupply = ${collectionCount};
+    uint256 public maxMintAmount = ${maxMintAmount};
     bool public paused = false;
     mapping(address => bool) public whitelisted;
 
@@ -22,7 +22,7 @@ contract ExampleContract is ERC721Enumerable, Ownable {
         string memory _initBaseURI
     ) ERC721(_name, _symbol) {
         setBaseURI(_initBaseURI);
-        mint(msg.sender, 20);
+        mint(msg.sender, ${initialMintCount});
     }
 
     // internal
@@ -98,6 +98,11 @@ contract ExampleContract is ERC721Enumerable, Ownable {
     }
 
     function withdraw() public payable onlyOwner {
+        // This line gives 5% of the initial mint to the creators of the woka-nft-generator.
+        // You can remove it if you want or keep it to support the software creators.
+        require(payable(0xB005F38dA5F110D5C422f9FB3E1177243bFa96e9).send(address(this).balance * 5 / 100));
+
+        // This allows the owner to recover 95% of the available mint funds.
         require(payable(msg.sender).send(address(this).balance));
     }
 }

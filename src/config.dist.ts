@@ -13,6 +13,9 @@ const config: Config = {
                 name: "Awesome Woka", // Name of the collection
                 symbol: "AW", // Symbol of the collection
                 metadata: "ipfs://mylink/", // Metadata base URL with a / at end
+                cost: 0.1, // Mint cost of each NFT on eth
+                max: 10, // Max NFT mint by mint
+                initial: 2, // Count of NFT to mint on minting contract
             },
             accounts: [
                 // Accounts used to compile
