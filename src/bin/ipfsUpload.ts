@@ -8,7 +8,7 @@ import { isMetadata, Metadata } from "../guards/MetadataGuards";
 import { MetadataGenerator } from "../generators/files/MetadataGenerator";
 import { z } from "zod";
 
-let metadataHash: UploadResult|undefined = undefined;
+let metadataHash: UploadResult | undefined = undefined;
 
 async function run() {
     const config = await getLocalConfig();
@@ -25,13 +25,13 @@ async function run() {
         throw new Error("Undefined metadata folder");
     }
 
-    const avatars = sortFilesByName(await fs.promises.readdir(avatarsDirPath)).filter((fileName) =>
-		!fs.statSync(avatarsDirPath + fileName).isDirectory()
-	);
+    const avatars = sortFilesByName(await fs.promises.readdir(avatarsDirPath)).filter(
+        (fileName) => !fs.statSync(avatarsDirPath + fileName).isDirectory()
+    );
 
-    const metadata = sortFilesByName(await fs.promises.readdir(metadataDirPath)).filter((fileName) =>
-		!fs.statSync(metadataDirPath + fileName).isDirectory()
-	);
+    const metadata = sortFilesByName(await fs.promises.readdir(metadataDirPath)).filter(
+        (fileName) => !fs.statSync(metadataDirPath + fileName).isDirectory()
+    );
 
     if (avatars.length !== metadata.length) {
         throw new Error("Avatars folder and metadata folder don't have the same count of file");
@@ -54,7 +54,7 @@ async function run() {
     const metadataBuffers: FileBuffer[] = [];
 
     for (const data of metadata) {
-        const edition = data.split('.')[0];
+        const edition = data.split(".")[0];
         const rawData = fs.readFileSync(metadataDirPath + data);
 
         let jsonData: Metadata;
@@ -63,7 +63,7 @@ async function run() {
         try {
             jsonData = isMetadata.parse(JSON.parse(rawData.toString()));
         } catch (err) {
-            if (err instanceof z.ZodError){
+            if (err instanceof z.ZodError) {
                 console.log(err.issues);
             }
             throw new Error("Error on parsing metadata");
@@ -90,14 +90,19 @@ async function run() {
 
 function sortFilesByName(files: string[]) {
     return files.sort(function (a, b) {
-		return Number(a.split(".")[0]) - Number(b.split(".")[0]);
-	});
+        return Number(a.split(".")[0]) - Number(b.split(".")[0]);
+    });
 }
 
 run()
     .then(() => {
         console.log(chalk.green(`The metadata folder IPFS hash is: ${metadataHash?.hash}`));
+        console.log(
+            chalk.yellow(
+                `You need to add the following value on blockchain.compile.metadata configuration key to push the smart contract: ipfs://${metadataHash?.hash}/`
+            )
+        );
     })
     .catch((err) => {
-		console.error(chalk.red(err));
-	});
+        console.error(chalk.red(err));
+    });

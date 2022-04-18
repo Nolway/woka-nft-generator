@@ -1,14 +1,22 @@
-export const basePath = process.cwd();
+import { resolve } from "path";
 
-export const configPath = `${basePath}/src/config.ts`;
+export const configPath = resolve("src/config.ts");
 
 // Build directories
-export const buildDirPath = `${basePath}/build/`;
-export const wokasDirPath = `${buildDirPath}wokas/`;
-export const metadataDirPath = `${buildDirPath}metadata/`;
-export const cropsDirPath = `${buildDirPath}crops/`;
-export const avatarsDirPath = `${buildDirPath}avatars/`;
+export const buildDirPath = resolve("build");
+export const wokasDirPath = `${buildDirPath}/wokas/`;
+export const metadataDirPath = `${buildDirPath}/metadata/`;
+export const cropsDirPath = `${buildDirPath}/crops/`;
+export const avatarsDirPath = `${buildDirPath}/avatars/`;
+export const cacheDirPath = `${buildDirPath}/hardhat-cache`;
+export const artifactsDirPath = `${buildDirPath}/artifacts`;
+export const hardhatConfigGeneratedPath = `${buildDirPath}/hardhat.config.json`;
 
 // Assets directories
-export const backgroundDirPath = `${basePath}/assets/backgrounds/`;
-export const layersDirPath = `${basePath}/assets/layers/`;
+export const assetsDirPath = resolve("assets");
+export const backgroundDirPath = `${assetsDirPath}/backgrounds/`;
+export const layersDirPath = `${assetsDirPath}/layers/`;
+export const contractsDirPath = `${assetsDirPath}/contracts`;
+
+// Contract templates
+export const ethContractTemplate = `${contractsDirPath}/EthContract.sol.tmpl`;

@@ -3,33 +3,37 @@ import { metadataDirPath } from "../../env";
 import { ConfigBlockchain } from "../../guards/ConfigGuards";
 import { Metadata } from "../../guards/MetadataGuards";
 import { Woka } from "../../guards/WokaGuards";
-import { AvalancheMetadataGenerator } from "../metadata/AvalancheMetadataGenerator";
-import { EthereumMetadataGenerator } from "../metadata/EthereumMetadataGenerator";
-import { MetadataGenericGenerator } from "../metadata/MetadataGenericGenerator";
+import { EthereumGenerator } from "../blockchains/EthereumGenerator";
+import { MetadataGenericGenerator } from "../MetadataGenericGenerator";
 
 export class MetadataGenerator {
-	constructor(private config: ConfigBlockchain) {}
+    constructor(private config: ConfigBlockchain) {}
 
-	public generate(woka: Woka): Metadata {
-		let generator: MetadataGenericGenerator;
+    public generate(woka: Woka): Metadata {
+        let generator: MetadataGenericGenerator;
 
-		switch (this.config.type) {
-		case "ethereum":
-			generator = new EthereumMetadataGenerator();
-			break;
-		case "avalanche":
-			generator = new AvalancheMetadataGenerator();
-			break;
-		}
+        switch (this.config.type) {
+            case "ethereum":
+            case "ropsten":
+            case "bsc":
+            case "bsc_testnet":
+            case "avalanche":
+            case "avash":
+            case "fuji":
+            case "nahmii":
+            case "nahmii_testnet":
+                generator = new EthereumGenerator();
+                break;
+        }
 
-		if (!generator) {
-			throw new Error(`Unknown metadata generator for ${this.config.type}`);
-		}
+        if (!generator) {
+            throw new Error(`Unknown metadata generator for ${this.config.type}`);
+        }
 
-		return generator.generate(this.config, woka);
-	}
+        return generator.generateMetadata(this.config, woka);
+    }
 
-	public static async exportLocal(metadata: Metadata) {
-		await fs.promises.writeFile(`${metadataDirPath}${metadata.edition}.json`, JSON.stringify(metadata, null, 2));
-	}
+    public static async exportLocal(metadata: Metadata) {
+        await fs.promises.writeFile(`${metadataDirPath}${metadata.edition}.json`, JSON.stringify(metadata, null, 2));
+    }
 }
