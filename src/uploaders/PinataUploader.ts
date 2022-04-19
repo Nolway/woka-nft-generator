@@ -11,18 +11,17 @@ export class PinataUploader implements GenericUploader {
         const data = new FormData();
 
         for (const file of files) {
-            data.append('file', file.buffer, { filename: file.name, filepath: `${folder}/${file.name}` });
+            data.append("file", file.buffer, { filename: file.name, filepath: `${folder}/${file.name}` });
         }
 
-        const result = await axios
-            .post(`${this.apiUrl}/pinning/pinFileToIPFS`, data, {
-                maxBodyLength: Infinity,
-                headers: {
-                    "Content-Type": `multipart/form-data; boundary=${data.getBoundary()}`,
-                    pinata_api_key: config.auth.key,
-                    pinata_secret_api_key: config.auth.secret,
-                }
-            });
+        const result = await axios.post(`${this.apiUrl}/pinning/pinFileToIPFS`, data, {
+            maxBodyLength: Infinity,
+            headers: {
+                "Content-Type": `multipart/form-data; boundary=${data.getBoundary()}`,
+                pinata_api_key: config.auth.key,
+                pinata_secret_api_key: config.auth.secret,
+            },
+        });
 
         const pinataResult = isPinataUploaderResult.parse(result.data);
 
