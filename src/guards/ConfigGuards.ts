@@ -126,26 +126,23 @@ export const isConfigBlockchainEthereumCompile = z.object({
 export type ConfigBlockchainEthereumCompile = z.infer<typeof isConfigBlockchainEthereumCompile>;
 
 export const isConfigBlockchainEthereum = z.object({
-    type: z.enum([
-        "ethereum",
-        "ropsten",
-        "polygon",
-        "mumbai",
-        "bsc",
-        "bsc_testnet",
-        "avalanche",
-        "avash",
-        "fuji",
-        "nahmii",
-        "nahmii_testnet",
-    ]),
-    url: z.string().optional(),
+    type: z.literal("ethereum"),
+    network: z.enum(["bsc", "bsc_testnet", "avalanche", "avash", "fuji", "nahmii", "nahmii_testnet"]),
     metadata: isConfigBlockchainEthereumMetadata,
     compile: isConfigBlockchainEthereumCompile,
 });
 export type ConfigBlockchainEthereum = z.infer<typeof isConfigBlockchainEthereum>;
 
-export const isConfigBlockchain = isConfigBlockchainEthereum;
+export const isConfigBlockchainEthereumUnknown = z.object({
+    type: z.literal("ethereum"),
+    network: z.string(),
+    url: z.string(),
+    metadata: isConfigBlockchainEthereumMetadata,
+    compile: isConfigBlockchainEthereumCompile,
+});
+export type ConfigBlockchainEthereumUnknown = z.infer<typeof isConfigBlockchainEthereumUnknown>;
+
+export const isConfigBlockchain = z.union([isConfigBlockchainEthereum, isConfigBlockchainEthereumUnknown]);
 export type ConfigBlockchain = z.infer<typeof isConfigBlockchain>;
 
 export const isConfigIpfsFolders = z.object({

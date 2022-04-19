@@ -14,14 +14,6 @@ export class MetadataGenerator {
 
         switch (this.config.type) {
             case "ethereum":
-            case "ropsten":
-            case "bsc":
-            case "bsc_testnet":
-            case "avalanche":
-            case "avash":
-            case "fuji":
-            case "nahmii":
-            case "nahmii_testnet":
                 generator = new EthereumGenerator();
                 break;
         }

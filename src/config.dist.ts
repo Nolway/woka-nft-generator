@@ -2,7 +2,11 @@ import { Config } from "./guards/ConfigGuards";
 
 const config: Config = {
     blockchain: {
-        type: "ethereum", // ethereum|ropsten|bsc|bsc_testnet|avalanche|nahmii|nahmii_testnet
+        type: "ethereum", // ethereum|solana
+        network: "avalanche", // bsc|bsc_testnet|avalanche|avash|fuji|nahmii|nahmii_testnet
+        // Need for a unknown network or an external service.
+        // If you want deploy to ropsten or ethereum mainnet, please use an Alchemy URL (https://docs.alchemy.com/alchemy/tutorials/hello-world-smart-contract#step-1-connect-to-the-ethereum-network)
+        // url: "ethereum"
         compile: {
             solidity: {
                 // Optional: Hardhat Solidity config (https://hardhat.org/config/#solidity-configuration)
