@@ -129,6 +129,8 @@ export const isConfigBlockchainEthereum = z.object({
     type: z.enum([
         "ethereum",
         "ropsten",
+        "polygon",
+        "mumbai",
         "bsc",
         "bsc_testnet",
         "avalanche",
