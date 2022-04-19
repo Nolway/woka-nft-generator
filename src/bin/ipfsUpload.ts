@@ -1,7 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
 import { getLocalConfig } from "../utils/ConfigUtils";
-import { avatarsDirPath, buildDirPath, metadataDirPath } from "../env";
+import { avatarsDirPath, buildDirPath, metadataDirPath, wokasDirPath } from "../env";
 import { FileBuffer, UploadResult } from "../guards/UploaderGuard";
 import { UploadManager } from "../uploaders/UploadManager";
 import { isMetadata, Metadata } from "../guards/MetadataGuards";
@@ -17,6 +17,10 @@ async function run() {
         throw new Error("Undefined build folder");
     }
 
+    if (!fs.existsSync(wokasDirPath)) {
+        throw new Error("Undefined wokas folder");
+    }
+
     if (!fs.existsSync(avatarsDirPath)) {
         throw new Error("Undefined avatars folder");
     }
@@ -25,6 +29,10 @@ async function run() {
         throw new Error("Undefined metadata folder");
     }
 
+    const wokas = sortFilesByName(await fs.promises.readdir(wokasDirPath)).filter(
+        (fileName) => !fs.statSync(wokasDirPath + fileName).isDirectory()
+    );
+
     const avatars = sortFilesByName(await fs.promises.readdir(avatarsDirPath)).filter(
         (fileName) => !fs.statSync(avatarsDirPath + fileName).isDirectory()
     );
@@ -32,6 +40,24 @@ async function run() {
     const metadata = sortFilesByName(await fs.promises.readdir(metadataDirPath)).filter(
         (fileName) => !fs.statSync(metadataDirPath + fileName).isDirectory()
     );
+
+    if (wokas.length !== metadata.length) {
+        throw new Error("Wokas folder and metadata folder don't have the same count of file");
+    }
+
+    const wokaBuffers: FileBuffer[] = [];
+
+    for (const woka of wokas) {
+        wokaBuffers.push({
+            name: woka,
+            buffer: await fs.promises.readFile(wokasDirPath + woka),
+        });
+    }
+
+    const wokaHash = await UploadManager.upload(config.ipfs, wokaBuffers, config.ipfs.folders.wokas);
+
+    console.log(chalk.green("All wokas have been uploaded"));
+    console.log(chalk.green(`The wokas folder IPFS hash is: ${wokaHash.hash}`));
 
     if (avatars.length !== metadata.length) {
         throw new Error("Avatars folder and metadata folder don't have the same count of file");
@@ -69,6 +95,7 @@ async function run() {
             throw new Error("Error on parsing metadata");
         }
 
+        jsonData.woka = `ipfs://${wokaHash}/${config.ipfs.folders.wokas}/${edition}.png`;
         jsonData.image = `ipfs://${avatarHash}/${config.ipfs.folders.avatars}/${edition}.png`;
 
         MetadataGenerator.exportLocal(jsonData);

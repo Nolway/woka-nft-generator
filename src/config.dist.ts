@@ -3,10 +3,10 @@ import { Config } from "./guards/ConfigGuards";
 const config: Config = {
     blockchain: {
         type: "ethereum", // ethereum|solana
-        network: "avalanche", // bsc|bsc_testnet|avalanche|avash|fuji|nahmii|nahmii_testnet
+        network: "avalanche", // Preset network (bsc|bsc_testnet|avalanche|avash|fuji|nahmii|nahmii_testnet) or name for custom
         // Need for a unknown network or an external service.
         // If you want deploy to ropsten or ethereum mainnet, please use an Alchemy URL (https://docs.alchemy.com/alchemy/tutorials/hello-world-smart-contract#step-1-connect-to-the-ethereum-network)
-        // url: "ethereum"
+        // url: "https://eth-mainnet.alchemyapi.io/v2/api_key"
         compile: {
             solidity: {
                 // Optional: Hardhat Solidity config (https://hardhat.org/config/#solidity-configuration)
@@ -35,6 +35,7 @@ const config: Config = {
             },
             description: "Awesome Woka", // Description of your NFT
             image: "ipfs://mylink/", // Base URI to your avatar files
+            woka: "ipfs://mylink/", // Base URI to your woka files
         },
     },
     ipfs: {
@@ -45,6 +46,7 @@ const config: Config = {
         },
         folders: {
             // Folders where the files will be uploads
+            wokas: "wokas",
             avatars: "avatars",
             metadata: "metadata",
         },

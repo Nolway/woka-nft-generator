@@ -18,6 +18,7 @@ export class EthereumGenerator implements MetadataGenericGenerator {
             name: `${namePrefix}${woka.edition}${nameSuffix}`,
             description: config.metadata.description,
             image: `${config.metadata.image}${woka.edition}.png`,
+            woka: `${config.metadata.woka}${woka.edition}.png`,
             dna: woka.dna,
             edition: woka.edition,
             attributes: generateAttributes(woka.layers),

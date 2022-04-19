@@ -92,6 +92,7 @@ export const isConfigBlockchainEthereumMetadata = z.object({
     name: isConfigBlockchainMetadataName.optional(),
     description: z.string(),
     image: z.string(),
+    woka: z.string(),
 });
 export type ConfigBlockchainEthereumMetadata = z.infer<typeof isConfigBlockchainEthereumMetadata>;
 
@@ -146,6 +147,7 @@ export const isConfigBlockchain = z.union([isConfigBlockchainEthereum, isConfigB
 export type ConfigBlockchain = z.infer<typeof isConfigBlockchain>;
 
 export const isConfigIpfsFolders = z.object({
+    wokas: z.string(),
     avatars: z.string(),
     metadata: z.string(),
 });
