@@ -1,12 +1,14 @@
 import { HardhatUserConfig } from "hardhat/types/config";
 import { artifactsDirPath, cacheDirPath, contractsDirPath } from "../../env";
-import { ConfigBlockchain } from "../../guards/ConfigGuards";
+import { ConfigBlockchain, isConfigBlockchainEthereumUnknown } from "../../guards/ConfigGuards";
 
 export class HardhatConfigGenerator {
     public static generate(config: ConfigBlockchain): HardhatUserConfig {
+        const isUnknownNetwork = isConfigBlockchainEthereumUnknown.safeParse(config);
+
         const hardhatConfig = {
             solidity: {
-                version: "0.8.O",
+                version: "0.8.13",
             },
             paths: {
                 sources: contractsDirPath,
@@ -55,11 +57,11 @@ export class HardhatConfigGenerator {
                     accounts: config.compile.accounts,
                 },
                 custom: {
-                    url: config.url ?? "",
+                    url: isUnknownNetwork.success ? isUnknownNetwork.data.url : "",
                     accounts: config.compile.accounts,
                 },
             },
-            defaultNetwork: config.url ? "custom" : config.type,
+            defaultNetwork: isUnknownNetwork.success ? "custom" : config.network,
         };
 
         if (config.compile.solidity) {
