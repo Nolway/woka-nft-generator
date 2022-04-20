@@ -134,6 +134,11 @@ export const isConfigBlockchainEthereum = z.object({
     scripting: z
         .object({
             address: z.string(),
+            scan: z
+                .object({
+                    key: z.string(),
+                })
+                .optional(),
         })
         .optional(),
 });

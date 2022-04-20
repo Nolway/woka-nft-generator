@@ -29,6 +29,10 @@ const config: Config = {
         scripting: {
             // Optional: Need to use scripts using a existing deployed contract
             address: "contract address", // Contract address
+            scan: {
+                // Optional: Needs for scan verify on the blockchain explorer
+                key: "api key", // API key from Etherscan
+            },
         },
         metadata: {
             /* Ethereum */

@@ -53,13 +53,15 @@ export class HardhatConfigGenerator {
                     url: "https://l2.testnet.nahmii.io/",
                     nvm: true,
                     gasPrice: 15000000,
-                    gasLimit: 15000000,
                     accounts: config.compile.accounts,
                 },
                 custom: {
                     url: isUnknownNetwork.success ? isUnknownNetwork.data.url : "",
                     accounts: config.compile.accounts,
                 },
+            },
+            etherscan: {
+                apiKey: config.scripting?.scan?.key ?? "",
             },
             defaultNetwork: isUnknownNetwork.success ? "custom" : config.network,
         };

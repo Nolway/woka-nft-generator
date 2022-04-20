@@ -1,9 +1,10 @@
 import fs from "fs";
 import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
+import "@nahmii/hardhat-nvm";
 import { hardhatConfigGeneratedPath } from "./src/env";
 import { HardhatUserConfig } from "hardhat/types";
-import("@nahmii/hardhat-nvm");
 
 if (!fs.existsSync(hardhatConfigGeneratedPath)) {
     throw new Error("No generated hardhat config fund!");
