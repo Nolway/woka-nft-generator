@@ -131,15 +131,17 @@ export const isConfigBlockchainEthereum = z.object({
     network: z.enum(["bsc", "bsc_testnet", "avalanche", "avash", "fuji", "nahmii", "nahmii_testnet"]),
     metadata: isConfigBlockchainEthereumMetadata,
     compile: isConfigBlockchainEthereumCompile,
+    scripting: z
+        .object({
+            address: z.string(),
+        })
+        .optional(),
 });
 export type ConfigBlockchainEthereum = z.infer<typeof isConfigBlockchainEthereum>;
 
-export const isConfigBlockchainEthereumUnknown = z.object({
-    type: z.literal("ethereum"),
+export const isConfigBlockchainEthereumUnknown = isConfigBlockchainEthereum.extend({
     network: z.string(),
     url: z.string(),
-    metadata: isConfigBlockchainEthereumMetadata,
-    compile: isConfigBlockchainEthereumCompile,
 });
 export type ConfigBlockchainEthereumUnknown = z.infer<typeof isConfigBlockchainEthereumUnknown>;
 

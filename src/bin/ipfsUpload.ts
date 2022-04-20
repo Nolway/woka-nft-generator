@@ -95,8 +95,8 @@ async function run() {
             throw new Error("Error on parsing metadata");
         }
 
-        jsonData.woka = `ipfs://${wokaHash}/${config.ipfs.folders.wokas}/${edition}.png`;
-        jsonData.image = `ipfs://${avatarHash}/${config.ipfs.folders.avatars}/${edition}.png`;
+        jsonData.woka = `ipfs://${wokaHash.hash}/${edition}.png`;
+        jsonData.image = `ipfs://${avatarHash.hash}/${edition}.png`;
 
         MetadataGenerator.exportLocal(jsonData);
 
