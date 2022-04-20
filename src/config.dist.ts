@@ -26,6 +26,10 @@ const config: Config = {
                 "account secret",
             ],
         },
+        scripting: {
+            // Optional: Need to use scripts using a existing deployed contract
+            address: "contract address", // Contract address
+        },
         metadata: {
             /* Ethereum */
             // Optional: Manage the NFT name

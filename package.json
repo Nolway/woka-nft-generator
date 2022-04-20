@@ -15,7 +15,8 @@
         "generate-contract": "ts-node ./src/bin/generateContract.ts",
         "generate-hardhat-config": "ts-node ./src/bin/generateHardhatConfig.ts",
         "deploy-contract": "ts-node ./src/bin/deployContract.ts",
-        "reset": "ts-node ./src/bin/reset.ts"
+        "reset": "ts-node ./src/bin/reset.ts",
+        "update-metadata-uri": "ts-node ./src/bin/updateMetadataUri.ts"
     },
     "dependencies": {
         "@nahmii/hardhat-nvm": "^0.2.3",
