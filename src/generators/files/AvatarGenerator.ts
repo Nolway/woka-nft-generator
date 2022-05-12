@@ -1,100 +1,163 @@
 import sharp from "sharp";
 import fs from "fs";
 import { avatarsDirPath, backgroundDirPath } from "../../env";
-import { ConfigCollection } from "../../guards/ConfigGuards";
+import {
+    ConfigCollection,
+    isConfigCollectionBackgroundParametersCropPositionGravity,
+    isConfigCollectionBackgroundParametersCropPositionXY,
+} from "../../guards/ConfigGuards";
 import { Woka } from "../../guards/WokaGuards";
+import { CropPosition } from "../../guards/AvatarGuard";
+import path from "path";
 
 sharp.cache(false);
 
 export class AvatarGenerator {
-	constructor(private config: ConfigCollection) {}
+    private readonly cropPosition: CropPosition;
 
-	public async generate(woka: Woka, backgrounds: Buffer[]): Promise<void> {
-		if (!woka.crop) {
-			throw new Error(`Undefined crop on woka edition ${woka.edition}`);
-		}
+    constructor(private config: ConfigCollection) {
+        this.cropPosition = this.getCropPosition();
+    }
 
-		if (this.config.background) {
-			switch (this.config.background.method) {
-			case "image": {
-				if (backgrounds.length < 1) {
-					throw new Error("You don't have any background in the assets folder");
-				}
+    private getCropPosition(): CropPosition {
+        if (!this.config?.background?.parameters?.crop?.position) {
+            return {
+                gravity: "centre",
+            };
+        }
 
-				woka.avatar = await sharp(backgrounds[Math.floor(Math.random() * (backgrounds.length - 1))])
-					.composite([{ input: woka.crop, gravity: "centre" }])
-					.toBuffer();
-				break;
-			}
-			case "linked": {
-				woka.avatar = await sharp(backgrounds[woka.edition - 1])
-					.composite([{ input: woka.crop, gravity: "centre" }])
-					.toBuffer();
-				break;
-			}
-			case "color": {
-				if (!this.config.background.color) {
-					throw new Error("Undefined color property for \"color\" background method");
-				}
+        const configCropPosition = this.config.background.parameters.crop.position;
 
-				const background: sharp.Color = {
-					r: undefined,
-					g: undefined,
-					b: undefined,
-					alpha: undefined,
-				};
+        const isCropPositionXY = isConfigCollectionBackgroundParametersCropPositionXY.safeParse(configCropPosition);
+        const isCropPositionGravity =
+            isConfigCollectionBackgroundParametersCropPositionGravity.safeParse(configCropPosition);
 
-				if (this.config.background.color.hex) {
-					const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
-						this.config.background.color.hex
-					);
-					if (result) {
-						background.r = parseInt(result[1], 16);
-						background.g = parseInt(result[2], 16);
-						background.b = parseInt(result[3], 16);
-					}
-				}
+        if (isCropPositionXY.success) {
+            return {
+                ...isCropPositionXY.data,
+            };
+        }
 
-				if (this.config.background.color.alpha) {
-					background.alpha = this.config.background.color.alpha;
-				}
+        if (isCropPositionGravity.success) {
+            return {
+                gravity: isCropPositionGravity.data,
+            };
+        }
 
-				woka.avatar = await sharp(woka.crop).removeAlpha().flatten({ background }).toBuffer();
-				break;
-			}
-			case "none": {
-				woka.avatar = woka.crop;
-				break;
-			}
-			}
-		} else {
-			woka.avatar = woka.crop;
-		}
-	}
+        throw new Error("Unknown crop position");
+    }
 
-	public async getLocalBackgrounds(): Promise<Buffer[]> {
-		const loadedBackgrounds: Buffer[] = [];
+    public async generate(woka: Woka, backgrounds: Map<string, Buffer>): Promise<void> {
+        if (!woka.crop) {
+            throw new Error(`Undefined crop on woka edition ${woka.edition}`);
+        }
 
-		const backgroundFiles = await fs.promises.readdir(backgroundDirPath);
+        if (this.config.background) {
+            const cropOverlay = {
+                input: woka.crop,
+                ...this.cropPosition,
+            };
 
-		for (const file of backgroundFiles) {
-			const filePath = backgroundDirPath + file;
+            switch (this.config.background.method) {
+                case "image": {
+                    if (backgrounds.size < 1) {
+                        throw new Error("You don't have any background in the assets folder");
+                    }
 
-			if (fs.statSync(filePath).isDirectory()) {
-				continue;
-			}
+                    woka.avatar = await sharp(
+                        [...backgrounds.values()][Math.floor(Math.random() * (backgrounds.size - 1))]
+                    )
+                        .composite([cropOverlay])
+                        .toBuffer();
+                    break;
+                }
+                case "linked": {
+                    woka.avatar = await sharp([...backgrounds.values()][woka.edition - 1])
+                        .composite([cropOverlay])
+                        .toBuffer();
+                    break;
+                }
+                case "color": {
+                    if (!this.config?.background?.parameters?.color) {
+                        throw new Error("Undefined color property for \"color\" background method");
+                    }
 
-			loadedBackgrounds.push(await sharp(filePath).toBuffer());
-		}
+                    const background: sharp.Color = {
+                        r: undefined,
+                        g: undefined,
+                        b: undefined,
+                        alpha: undefined,
+                    };
 
-		return loadedBackgrounds;
-	}
+                    if (this.config.background.parameters.color.hex) {
+                        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
+                            this.config.background.parameters.color.hex
+                        );
+                        if (result) {
+                            background.r = parseInt(result[1], 16);
+                            background.g = parseInt(result[2], 16);
+                            background.b = parseInt(result[3], 16);
+                        }
+                    }
 
-	public static async exportLocal(woka: Woka): Promise<void> {
-		if (!woka.avatar) {
-			throw new Error(`Undefined avatar on woka edition ${woka.edition}`);
-		}
+                    if (this.config.background.parameters.color.alpha) {
+                        background.alpha = this.config.background.parameters.color.alpha;
+                    }
 
-		await sharp(woka.avatar).toFile(avatarsDirPath + woka.edition + ".png");
-	}
+                    woka.avatar = await sharp(woka.crop).removeAlpha().flatten({ background }).toBuffer();
+                    break;
+                }
+                case "rarity": {
+                    let higherWeight = -1;
+                    for (const layer of Object.values(woka.layers)) {
+                        if (higherWeight < layer.weight) {
+                            higherWeight = layer.weight;
+                        }
+                    }
+
+                    const background = backgrounds.get(higherWeight.toString());
+
+                    if (background) {
+                        woka.avatar = await sharp(background).composite([cropOverlay]).toBuffer();
+                    } else {
+                        woka.avatar = woka.crop;
+                    }
+
+                    break;
+                }
+                case "none": {
+                    woka.avatar = woka.crop;
+                    break;
+                }
+            }
+        } else {
+            woka.avatar = woka.crop;
+        }
+    }
+
+    public async getLocalBackgrounds(): Promise<Map<string, Buffer>> {
+        const loadedBackgrounds: Map<string, Buffer> = new Map<string, Buffer>();
+
+        const backgroundFiles = await fs.promises.readdir(backgroundDirPath);
+
+        for (const file of backgroundFiles) {
+            const filePath = backgroundDirPath + file;
+
+            if (fs.statSync(filePath).isDirectory()) {
+                continue;
+            }
+
+            loadedBackgrounds.set(path.parse(file).name, await sharp(filePath).toBuffer());
+        }
+
+        return loadedBackgrounds;
+    }
+
+    public static async exportLocal(woka: Woka): Promise<void> {
+        if (!woka.avatar) {
+            throw new Error(`Undefined avatar on woka edition ${woka.edition}`);
+        }
+
+        await sharp(woka.avatar).toFile(avatarsDirPath + woka.edition + ".png");
+    }
 }

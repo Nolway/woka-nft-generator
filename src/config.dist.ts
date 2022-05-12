@@ -22,7 +22,7 @@ const config: Config = {
                 initial: 2, // Count of NFT to mint on minting contract
             },
             accounts: [
-                // Accounts used to compile
+                // Accounts used to compile, must be a private wallet key or advcanced authetication
                 "account secret",
             ],
         },
@@ -150,12 +150,19 @@ const config: Config = {
              * image: Get a random background from the backgrounds folder.
              * linked: Use the background with the same name in the backgrounds folder.
              * color: Use a color.
+             * rarity: Use the background related to the rarest part (background names must match with the rarity weight).
              */
             method: "image",
-            /*color: {
-                hex: "#EACCFF",
-                alpha: 1,
-            },*/
+            parameters: {
+                crop: {
+                    // Position of the crop on background (can be a position or points top/left)
+                    position: "centre",
+                },
+                /*color: { // Only if is color method
+                    hex: "#EACCFF",
+                    alpha: 1,
+                },*/
+            },
         },
     },
 };

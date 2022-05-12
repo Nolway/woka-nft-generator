@@ -1,16 +1,62 @@
 import { z } from "zod";
 
-export const isConfigCollectionBackgroundColor = z.object({
+export const isConfigCollectionBackgroundParametersCropPositionXY = z.object({
+    left: z.number().gte(0),
+    top: z.number().gte(0),
+});
+export type ConfigCollectionBackgroundParametersCropPositionXY = z.infer<
+    typeof isConfigCollectionBackgroundParametersCropPositionXY
+>;
+
+export const isConfigCollectionBackgroundParametersCropPositionGravity = z.enum([
+    "centre",
+    "north",
+    "east",
+    "south",
+    "west",
+    "northeast",
+    "southeast",
+    "southwest",
+    "northwest",
+]);
+export type ConfigCollectionBackgroundParametersCropPositionGravity = z.infer<
+    typeof isConfigCollectionBackgroundParametersCropPositionGravity
+>;
+
+export const isConfigCollectionBackgroundParameters = z.object({
+    crop: z.object({
+        position: z.union([
+            isConfigCollectionBackgroundParametersCropPositionGravity,
+            isConfigCollectionBackgroundParametersCropPositionXY,
+        ]),
+    }),
+});
+export type ConfigCollectionBackgroundParameters = z.infer<typeof isConfigCollectionBackgroundParameters>;
+
+export const isConfigCollectionBackgroundParametersColor = z.object({
     hex: z.string(),
     alpha: z.number().lte(0).gte(1),
 });
-export type ConfigCollectionBackgroundColor = z.infer<typeof isConfigCollectionBackgroundColor>;
+export type ConfigCollectionBackgroundParametersColor = z.infer<typeof isConfigCollectionBackgroundParametersColor>;
 
-export const isConfigCollectionBackground = z.object({
-    method: z.enum(["image", "linked", "color", "none"]),
-    color: isConfigCollectionBackgroundColor.optional(),
+export const isConfigCollectionMethodBackgroundColor = z.object({
+    method: z.literal("color"),
+    parameters: isConfigCollectionBackgroundParameters.merge(
+        z.object({
+            color: isConfigCollectionBackgroundParametersColor.optional(),
+        })
+    ),
 });
-export type ConfigCollectionBackground = z.infer<typeof isConfigCollectionBackground>;
+export type ConfigCollectionMethodBackgroundColor = z.infer<typeof isConfigCollectionMethodBackgroundColor>;
+
+export const isConfigCollectionMethodBackground = z.union([
+    z.object({
+        method: z.enum(["image", "linked", "rarity", "none"]),
+        parameters: isConfigCollectionBackgroundParameters.optional(),
+    }),
+    isConfigCollectionMethodBackgroundColor,
+]);
+export type ConfigCollectionMethodBackground = z.infer<typeof isConfigCollectionMethodBackground>;
 
 export const isConfigCollectionRarityEdges = z.object({
     min: z.number().positive(),
@@ -78,7 +124,7 @@ export const isConfigCollection = z.object({
     layers: z.array(isConfigCollectionLayer),
     crop: isConfigCollectionCrop.optional(),
     rarity: isConfigCollectionRarity.optional(),
-    background: isConfigCollectionBackground.optional(),
+    background: isConfigCollectionMethodBackground.optional(),
 });
 export type ConfigCollection = z.infer<typeof isConfigCollection>;
 
