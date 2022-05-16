@@ -35,7 +35,7 @@ export type ConfigCollectionBackgroundParameters = z.infer<typeof isConfigCollec
 
 export const isConfigCollectionBackgroundParametersColor = z.object({
     hex: z.string(),
-    alpha: z.number().lte(0).gte(1),
+    alpha: z.number().gte(0),
 });
 export type ConfigCollectionBackgroundParametersColor = z.infer<typeof isConfigCollectionBackgroundParametersColor>;
 
@@ -121,7 +121,7 @@ export type ConfigCollectionLayerConstraints = z.infer<typeof isConfigCollection
 export const isConfigCollectionLayerSkip = z.object({
     allow: z.boolean(),
     value: z.string(),
-    rarity: z.number().positive(),
+    rarity: z.number().gte(0),
 });
 export type ConfigCollectionLayerSkip = z.infer<typeof isConfigCollectionLayerSkip>;
 
