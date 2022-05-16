@@ -38,7 +38,7 @@ async function generate(config: Config): Promise<void> {
 
     // Initiate generators
     const wokaGenerator = new WokaGenerator(config, loadedLayers);
-    const metadataGenerator = new MetadataGenerator(config.blockchain);
+    const metadataGenerator = new MetadataGenerator(config);
     const cropGenerator = new CropGenerator(config.collection.crop);
     const avatarGenerator = new AvatarGenerator(config.collection);
 

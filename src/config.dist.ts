@@ -36,12 +36,14 @@ const config: Config = {
         },
         metadata: {
             /* Ethereum */
-            // Optional: Manage the NFT name
-            name: {
-                prefix: "My awesome Woka edition ", // Optional: NFT name prefix
-                suffix: " wow !", // Optional: NFT name suffix
-            },
-            description: "Awesome Woka", // Description of your NFT
+            /**
+             * Generate the NFT name with variables
+             * edition: Edition number.
+             * binding: Bind parts files from assets/words.csv (columns must be separated by ;) file to words.
+             * rarity: Rarest part rarity label.
+             */
+            name: "My awesome Woka edition {edition} wow !",
+            description: "Awesome Woka edition {edition}", // Description of your NFTs (variables can be used like in the name)
             image: "ipfs://mylink/", // Base URI to your avatar files
             woka: "ipfs://mylink/", // Base URI to your woka files
         },
@@ -142,6 +144,21 @@ const config: Config = {
                 min: 1, // Min rarity, cannot be under 1
                 max: 100, // Max rarity
             },
+            // Optional: Labels by weight
+            labels: [
+                {
+                    weight: 10,
+                    label: "Rare",
+                },
+                {
+                    weight: 30,
+                    label: "Uncommon",
+                },
+                {
+                    weight: 50,
+                    label: "Common",
+                },
+            ],
         },
         background: {
             /**
@@ -153,16 +170,16 @@ const config: Config = {
              * rarity: Use the background related to the rarest part (background names must match with the rarity weight).
              */
             method: "image",
-            parameters: {
+            /*parameters: {
                 crop: {
                     // Position of the crop on background (can be a position or points top/left)
                     position: "centre",
                 },
-                /*color: { // Only if is color method
+                color: { // Only if is color method
                     hex: "#EACCFF",
                     alpha: 1,
-                },*/
-            },
+                },
+            },*/
         },
     },
 };

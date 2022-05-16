@@ -19,3 +19,10 @@ export type EthereumMetadata = z.infer<typeof isEthereumMetadata>;
 
 export const isMetadata = isEthereumMetadata;
 export type Metadata = z.infer<typeof isMetadata>;
+
+export const isWordBindingPart = z.object({
+    layer: z.string(),
+    part: z.string(),
+    word: z.string(),
+});
+export type WordBindingPart = z.infer<typeof isWordBindingPart>;

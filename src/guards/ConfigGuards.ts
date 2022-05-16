@@ -64,9 +64,16 @@ export const isConfigCollectionRarityEdges = z.object({
 });
 export type ConfigCollectionRarityEdges = z.infer<typeof isConfigCollectionRarityEdges>;
 
+export const isConfigCollectionRarityLabel = z.object({
+    weight: z.number(),
+    label: z.string(),
+});
+export type ConfigCollectionRarityLabel = z.infer<typeof isConfigCollectionRarityLabel>;
+
 export const isConfigCollectionRarity = z.object({
     method: z.enum(["random", "delimiter", "none"]),
     edges: isConfigCollectionRarityEdges.optional(),
+    labels: isConfigCollectionRarityLabel.array().optional(),
 });
 export type ConfigCollectionRarity = z.infer<typeof isConfigCollectionRarity>;
 
@@ -128,14 +135,8 @@ export const isConfigCollection = z.object({
 });
 export type ConfigCollection = z.infer<typeof isConfigCollection>;
 
-export const isConfigBlockchainMetadataName = z.object({
-    prefix: z.string().optional(),
-    suffix: z.string().optional(),
-});
-export type ConfigBlockchainMetadataName = z.infer<typeof isConfigBlockchainMetadataName>;
-
 export const isConfigBlockchainEthereumMetadata = z.object({
-    name: isConfigBlockchainMetadataName.optional(),
+    name: z.string(),
     description: z.string(),
     image: z.string(),
     woka: z.string(),

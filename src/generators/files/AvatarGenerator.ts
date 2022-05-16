@@ -108,20 +108,28 @@ export class AvatarGenerator {
                     break;
                 }
                 case "rarity": {
-                    let higherWeight = -1;
+                    let lowerWeight: number | undefined;
+
                     for (const layer of Object.values(woka.layers)) {
-                        if (higherWeight < layer.weight) {
-                            higherWeight = layer.weight;
+                        if (!lowerWeight) {
+                            lowerWeight = layer.weight;
+                        } else if (lowerWeight > layer.weight) {
+                            lowerWeight = layer.weight;
                         }
                     }
 
-                    const background = backgrounds.get(higherWeight.toString());
+                    if (!lowerWeight) {
+                        woka.avatar = woka.crop;
+                        break;
+                    }
+
+                    const background = backgrounds.get(lowerWeight.toString());
 
                     if (background) {
                         woka.avatar = await sharp(background).composite([cropOverlay]).toBuffer();
-                    } else {
-                        woka.avatar = woka.crop;
                     }
+
+                    woka.avatar = woka.crop;
 
                     break;
                 }

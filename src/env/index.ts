@@ -17,6 +17,7 @@ export const assetsDirPath = resolve("assets");
 export const backgroundDirPath = `${assetsDirPath}/backgrounds/`;
 export const layersDirPath = `${assetsDirPath}/layers/`;
 export const contractsDirPath = `${assetsDirPath}/contracts`;
+export const wordsBindingPartsFilePath = `${assetsDirPath}/words.csv`;
 
 // Contract templates
 export const ethContractTemplate = `${contractsDirPath}/EthContract.sol.tmpl`;
