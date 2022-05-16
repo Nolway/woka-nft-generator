@@ -105,11 +105,17 @@ export const isConfigCollectionLayerConstraintLinked = z.object({
 });
 export type isConfigCollectionLayerConstraintLinked = z.infer<typeof isConfigCollectionLayerConstraintLinked>;
 
-export const isConfigCollectionLayerConstraints = z.object({
-    linked: isConfigCollectionLayerConstraintLinked.optional(),
-    with: z.array(z.string()).optional(),
-    without: z.array(z.string()).optional(),
+export const isConfigCollectionLayerConstraintsWithWithout = z.object({
+    with: z.record(z.string(), z.union([z.literal("*"), z.string().array()])).optional(),
+    without: z.record(z.string(), z.union([z.literal("*"), z.string().array()])).optional(),
 });
+
+export const isConfigCollectionLayerConstraints = z
+    .object({
+        linked: isConfigCollectionLayerConstraintLinked.optional(),
+        parts: z.record(z.string(), isConfigCollectionLayerConstraintsWithWithout).optional(),
+    })
+    .merge(isConfigCollectionLayerConstraintsWithWithout);
 export type ConfigCollectionLayerConstraints = z.infer<typeof isConfigCollectionLayerConstraints>;
 
 export const isConfigCollectionLayerSkip = z.object({

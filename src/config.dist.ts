@@ -90,23 +90,38 @@ const config: Config = {
                     value: "None",
                     rarity: 10,
                 },
-                constraints: {
-                    /*linked: { // Optional: Use the layer texture of an other layer by name
-                            layer: "Hair",
-                            textures: [
-                                {
-                                    on: "Redhead",
-                                    with: "Crown",
-                                }
-                            ],
-                    },
-                    with: [ // Optional: Use the layer only if has all parts required
-                        "Hair"
-                    ],
-                    without: [ // Optional: Use the layer only if has all parts not required is none
-                        "Hair"
-                    ],*/
-                },
+                // constraints: {
+                //     linked: {
+                //         // Optional: Use the layer texture of an other layer by name
+                //         layer: "Hair",
+                //         textures: [
+                //             {
+                //                 on: "Redhead",
+                //                 with: "Crown",
+                //             },
+                //         ],
+                //     },
+                //     with: {
+                //         // Optional: Use the layer only if has all parts required
+                //         Hair: "*",
+                //     },
+                //     without: {
+                //         // Optional: Use the layer only if has all parts not required is none
+                //         Accessory: ["Mage Stick"],
+                //     },
+                //     parts: {
+                //         Tinfoil: {
+                //             with: {
+                //                 // Optional: Use the layer only if has all parts required
+                //                 Hair: "*",
+                //             },
+                //             without: {
+                //                 // Optional: Use the layer only if has all parts not required is none
+                //                 Accessory: ["Mage Stick"],
+                //             },
+                //         },
+                //     },
+                // },
             },
             {
                 name: "Accessory", // Attribute generated on metadata & folder name on assets/layers/

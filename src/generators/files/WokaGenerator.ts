@@ -113,10 +113,19 @@ export class WokaGenerator {
             }
 
             if (configLayer.constraints.with) {
-                for (const constraintLayer of configLayer.constraints.with) {
+                for (const constraintLayer in configLayer.constraints.with) {
                     if (!layers[constraintLayer]) {
                         throw new Error(`Unknown layer ${constraintLayer} on with constraint`);
-                    } else if (
+                    }
+
+                    if (
+                        configLayer.constraints.with[constraintLayer] !== "*" &&
+                        !configLayer.constraints.with[constraintLayer].includes(layers[constraintLayer].name)
+                    ) {
+                        continue;
+                    }
+
+                    if (
                         !layers[constraintLayer].file &&
                         (!newLayers[constraintLayer] || !newLayers[constraintLayer].file)
                     ) {
@@ -130,10 +139,19 @@ export class WokaGenerator {
             }
 
             if (configLayer.constraints.without) {
-                for (const constraintLayer of configLayer.constraints.without) {
+                for (const constraintLayer in configLayer.constraints.without) {
                     if (!layers[constraintLayer]) {
                         throw new Error(`Unknown layer ${constraintLayer} on without constraint`);
-                    } else if (
+                    }
+
+                    if (
+                        configLayer.constraints.without[constraintLayer] !== "*" &&
+                        !configLayer.constraints.without[constraintLayer].includes(layers[constraintLayer].name)
+                    ) {
+                        continue;
+                    }
+
+                    if (
                         layers[constraintLayer].file &&
                         (!newLayers[constraintLayer] || newLayers[constraintLayer].file)
                     ) {
@@ -142,6 +160,62 @@ export class WokaGenerator {
                             weight: configLayer.skip.rarity,
                             file: undefined,
                         };
+                    }
+                }
+            }
+
+            if (configLayer.constraints.parts && configLayer.constraints.parts[layers[layerName].name]) {
+                const partConstraints = configLayer.constraints.parts[layers[layerName].name];
+
+                if (partConstraints.with) {
+                    for (const constraintLayer in partConstraints.with) {
+                        if (!layers[constraintLayer]) {
+                            throw new Error(`Unknown layer ${constraintLayer} on with constraint`);
+                        }
+
+                        if (
+                            partConstraints.with[constraintLayer] !== "*" &&
+                            !partConstraints.with[constraintLayer].includes(layers[constraintLayer].name)
+                        ) {
+                            continue;
+                        }
+
+                        if (
+                            !layers[constraintLayer].file &&
+                            (!newLayers[constraintLayer] || !newLayers[constraintLayer].file)
+                        ) {
+                            newLayers[layerName] = {
+                                name: configLayer.skip.value,
+                                weight: configLayer.skip.rarity,
+                                file: undefined,
+                            };
+                        }
+                    }
+                }
+
+                if (partConstraints.without) {
+                    for (const constraintLayer in partConstraints.without) {
+                        if (!layers[constraintLayer]) {
+                            throw new Error(`Unknown layer ${constraintLayer} on without constraint`);
+                        }
+
+                        if (
+                            partConstraints.without[constraintLayer] !== "*" &&
+                            !partConstraints.without[constraintLayer].includes(layers[constraintLayer].name)
+                        ) {
+                            continue;
+                        }
+
+                        if (
+                            layers[constraintLayer].file &&
+                            (!newLayers[constraintLayer] || newLayers[constraintLayer].file)
+                        ) {
+                            newLayers[layerName] = {
+                                name: configLayer.skip.value,
+                                weight: configLayer.skip.rarity,
+                                file: undefined,
+                            };
+                        }
                     }
                 }
             }
