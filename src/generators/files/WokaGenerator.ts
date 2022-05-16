@@ -29,12 +29,29 @@ export class WokaGenerator {
 
     private generate(edition: number): Woka {
         let layers: WokaLayers = {};
+        let attempts = 0;
 
-        for (const layer of Object.keys(this.layers)) {
-            layers[layer] = this.getRandomTexture(this.layers[layer]);
+        do {
+            for (const layer of Object.keys(this.layers)) {
+                layers[layer] = this.getRandomTexture(this.layers[layer]);
+            }
+
+            layers = this.aggrgateConstraints(layers);
+
+            for (const layer of Object.keys(this.layers)) {
+                const configLayer = this.config.collection.layers.find((currentLayer) => currentLayer.name === layer);
+                if (configLayer?.skip?.allow === false && !layers[layer].file) {
+                    layers = {};
+                    break;
+                }
+            }
+
+            attempts++;
+        } while (!layers || attempts < 1000);
+
+        if (attempts === 100) {
+            throw new Error("Cannot generate a new edition! Maybe something was wrong with constraints?");
         }
-
-        layers = this.aggrgateConstraints(layers);
 
         return {
             edition,
