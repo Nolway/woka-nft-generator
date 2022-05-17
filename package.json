@@ -31,6 +31,7 @@
         "ethers": "^5.0.0--dev",
         "form-data": "^4.0.0",
         "hardhat": "^2.9.1",
+        "image-size": "^1.0.1",
         "pngjs": "^6.0.0",
         "sha1": "^1.1.1",
         "sharp": "^0.30.1",

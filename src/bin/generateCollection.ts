@@ -1,4 +1,5 @@
 import fs from "fs";
+import sizeOf from "image-size";
 import chalk from "chalk";
 import { Config, ConfigCollection } from "../guards/ConfigGuards";
 import { LoadedLayers, Woka, WokaTexture } from "../guards/WokaGuards";
@@ -112,7 +113,13 @@ async function loadLayer(config: ConfigCollection, layer: string): Promise<WokaT
         const parts = file.split(".");
 
         if (parts[parts.length - 1] !== "png") {
-            throw new Error(`${file} layer must be a PNG`);
+            throw new Error(`${file} file must be a PNG`);
+        }
+
+        const dimensions = sizeOf(filePath);
+
+        if (dimensions.height !== 128 && dimensions.width !== 96) {
+            console.log(`${file} file must have a size of 128/96 pixels`);
         }
 
         let weight = 100;
