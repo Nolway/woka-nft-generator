@@ -2,14 +2,14 @@ import sha1 from "sha1";
 import sharp from "sharp";
 import fs from "fs";
 import { PNG } from "pngjs";
-import { wokasDirPath } from "../../env";
+import { wokasDirPath, wokasUpscaleDirPath } from "../../env";
 import { Config } from "../../guards/ConfigGuards";
 import { LoadedLayers, Woka, WokaLayers, WokaTexture } from "../../guards/WokaGuards";
 
 sharp.cache(false);
 
 export class WokaGenerator {
-    constructor(private config: Config, private layers: LoadedLayers) {}
+    constructor(private config: Config, private loadedLayers: LoadedLayers) {}
 
     public generateCollection(): Woka[] {
         const wokas: Woka[] = [];
@@ -32,13 +32,13 @@ export class WokaGenerator {
         let attempts = 0;
 
         do {
-            for (const layer of Object.keys(this.layers)) {
-                layers[layer] = this.getRandomTexture(this.layers[layer]);
+            for (const layer of Object.keys(this.loadedLayers)) {
+                layers[layer] = this.getRandomTexture(this.loadedLayers[layer]);
             }
 
             layers = this.aggrgateConstraints(layers);
 
-            for (const layer of Object.keys(this.layers)) {
+            for (const layer of Object.keys(this.loadedLayers)) {
                 const configLayer = this.config.collection.layers.find((currentLayer) => currentLayer.name === layer);
                 if (configLayer?.skip?.allow === false && !layers[layer].file) {
                     layers = {};
@@ -47,9 +47,9 @@ export class WokaGenerator {
             }
 
             attempts++;
-        } while (!layers || attempts < 1000);
+        } while (Object.keys(layers).length < 1 && attempts < 1000);
 
-        if (attempts === 100) {
+        if (attempts === 1000) {
             throw new Error("Cannot generate a new edition! Maybe something was wrong with constraints?");
         }
 
@@ -88,7 +88,7 @@ export class WokaGenerator {
     private aggrgateConstraints(layers: WokaLayers): WokaLayers {
         const newLayers: WokaLayers = {};
 
-        for (const layerName of Object.keys(this.layers)) {
+        for (const layerName of Object.keys(this.loadedLayers)) {
             const configLayer = this.config.collection.layers.find((currentLayer) => currentLayer.name === layerName);
 
             if (!configLayer?.constraints) {
@@ -101,8 +101,8 @@ export class WokaGenerator {
             }
 
             if (configLayer.constraints.linked) {
-                const layer = this.layers[layerName];
-                const layerLink = this.layers[configLayer.constraints.linked.layer];
+                const layer = this.loadedLayers[layerName];
+                const layerLink = this.loadedLayers[configLayer.constraints.linked.layer];
 
                 if (!layer) {
                     throw new Error(`Unknown layer ${configLayer.constraints.linked.layer} on linked constraint`);
@@ -257,16 +257,22 @@ export class WokaGenerator {
 
     public async generateTileset(woka: Woka): Promise<void> {
         const layers: sharp.OverlayOptions[] = [];
+        const layersUpscale: sharp.OverlayOptions[] = [];
 
         for (const layer of Object.keys(woka.layers)) {
             const partFile = woka.layers[layer].file;
+            const partFileUpsacle = woka.layers[layer].upscaleFile;
 
-            if (!partFile) {
+            if (!partFile || !partFileUpsacle) {
                 continue;
             }
 
             layers.push({
                 input: partFile,
+            });
+
+            layersUpscale.push({
+                input: partFileUpsacle,
             });
         }
 
@@ -282,6 +288,19 @@ export class WokaGenerator {
             console.error(err);
             throw new Error(`Error on generate woka edition ${woka.edition}`);
         }
+
+        const newFileUpsacle = new PNG({
+            width: 750,
+            height: 1000,
+            filterType: -1,
+        });
+
+        try {
+            woka.upscaleTileset = await newFileUpsacle.pack().pipe(sharp().composite(layersUpscale)).toBuffer();
+        } catch (err) {
+            console.error(err);
+            throw new Error(`Error on generate woka upscale edition ${woka.edition}`);
+        }
     }
 
     public static async exportLocal(woka: Woka): Promise<void> {
@@ -290,6 +309,7 @@ export class WokaGenerator {
         }
 
         const filePath = wokasDirPath + woka.edition + ".png";
+        const fileUpscalePath = wokasUpscaleDirPath + woka.edition + ".png";
 
         if (!fs.existsSync(filePath)) {
             const newFile = new PNG({
@@ -302,5 +322,17 @@ export class WokaGenerator {
         }
 
         await sharp(woka.tileset).toFile(filePath);
+
+        if (!fs.existsSync(fileUpscalePath)) {
+            const newFile = new PNG({
+                width: 750,
+                height: 1000,
+                filterType: 1,
+            });
+
+            fs.writeFileSync(fileUpscalePath, PNG.sync.write(newFile));
+        }
+
+        await sharp(woka.upscaleTileset).toFile(fileUpscalePath);
     }
 }

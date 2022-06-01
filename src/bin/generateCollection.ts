@@ -3,7 +3,7 @@ import sizeOf from "image-size";
 import chalk from "chalk";
 import { Config, ConfigCollection } from "../guards/ConfigGuards";
 import { LoadedLayers, Woka, WokaTexture } from "../guards/WokaGuards";
-import { layersDirPath } from "../env";
+import { layersDirPath, layersUpscaleDirPath } from "../env";
 import { generateBuildDirectories, removeBuildDirectory } from "../utils/DirectoryUtils";
 import { maxCombination } from "../utils/LayerUtils";
 import { WokaGenerator } from "../generators/files/WokaGenerator";
@@ -41,10 +41,11 @@ async function generate(config: Config): Promise<void> {
     const wokaGenerator = new WokaGenerator(config, loadedLayers);
     const metadataGenerator = new MetadataGenerator(config);
     const cropGenerator = new CropGenerator(config.collection.crop);
-    const avatarGenerator = new AvatarGenerator(config.collection);
+    const avatarGenerator = new AvatarGenerator(config);
 
     // Generate the Woka collection
     wokasGenerated.push(...wokaGenerator.generateCollection());
+    console.log(chalk.green("All wokas has been generated"));
 
     for (const woka of wokasGenerated) {
         await wokaGenerator.generateTileset(woka);
@@ -63,6 +64,11 @@ async function generate(config: Config): Promise<void> {
         await avatarGenerator.generate(woka, backgrounds);
         await AvatarGenerator.exportLocal(woka);
         console.log(`Edition ${woka.edition} avatar has been generated`);
+
+        woka.avatar = undefined;
+        woka.tileset = undefined;
+        woka.upscaleTileset = undefined;
+        woka.crop = undefined;
     }
 }
 
@@ -100,11 +106,13 @@ async function loadLayers(config: ConfigCollection): Promise<LoadedLayers> {
 
 async function loadLayer(config: ConfigCollection, layer: string): Promise<WokaTexture[]> {
     const layerDirPath = layersDirPath + layer + "/";
+    const layerUpsacleDirPath = layersUpscaleDirPath + layer + "/";
     const files = await fs.promises.readdir(layerDirPath);
     const loadedTextures: WokaTexture[] = [];
 
     for (const file of files) {
         const filePath = layerDirPath + file;
+        const fileUpscalePath = layerUpsacleDirPath + file;
 
         if (fs.statSync(filePath).isDirectory()) {
             continue;
@@ -154,6 +162,7 @@ async function loadLayer(config: ConfigCollection, layer: string): Promise<WokaT
             name,
             weight,
             file: filePath,
+            upscaleFile: fileUpscalePath,
         });
     }
 

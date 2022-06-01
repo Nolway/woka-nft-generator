@@ -1,32 +1,33 @@
 import sharp from "sharp";
 import fs from "fs";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import textToSvg from "text-svg";
 import { avatarsDirPath, backgroundDirPath } from "../../env";
 import {
-    ConfigCollection,
+    Config,
     isConfigCollectionBackgroundParametersCropPositionGravity,
     isConfigCollectionBackgroundParametersCropPositionXY,
 } from "../../guards/ConfigGuards";
 import { Woka } from "../../guards/WokaGuards";
 import { CropPosition } from "../../guards/AvatarGuard";
 import path from "path";
+import { formatStringWithVariables } from "../../utils/MetadataUtils";
+import { PNG } from "pngjs";
 
 sharp.cache(false);
 
 export class AvatarGenerator {
-    private readonly cropPosition: CropPosition;
-
-    constructor(private config: ConfigCollection) {
-        this.cropPosition = this.getCropPosition();
-    }
+    constructor(private config: Config) {}
 
     private getCropPosition(): CropPosition {
-        if (!this.config?.background?.parameters?.crop?.position) {
+        if (!this.config.collection?.background?.parameters?.crop?.position) {
             return {
                 gravity: "centre",
             };
         }
 
-        const configCropPosition = this.config.background.parameters.crop.position;
+        const configCropPosition = this.config.collection.background.parameters.crop.position;
 
         const isCropPositionXY = isConfigCollectionBackgroundParametersCropPositionXY.safeParse(configCropPosition);
         const isCropPositionGravity =
@@ -52,13 +53,14 @@ export class AvatarGenerator {
             throw new Error(`Undefined crop on woka edition ${woka.edition}`);
         }
 
-        if (this.config.background) {
+        if (this.config.collection.background) {
+            const cropPosition = this.getCropPosition();
             const cropOverlay = {
                 input: woka.crop,
-                ...this.cropPosition,
+                ...cropPosition,
             };
 
-            switch (this.config.background.method) {
+            switch (this.config.collection.background.method) {
                 case "image": {
                     if (backgrounds.size < 1) {
                         throw new Error("You don't have any background in the assets folder");
@@ -78,7 +80,7 @@ export class AvatarGenerator {
                     break;
                 }
                 case "color": {
-                    if (!this.config?.background?.parameters?.color) {
+                    if (!this.config.collection.background.parameters?.color) {
                         throw new Error("Undefined color property for \"color\" background method");
                     }
 
@@ -89,9 +91,9 @@ export class AvatarGenerator {
                         alpha: undefined,
                     };
 
-                    if (this.config.background.parameters.color.hex) {
+                    if (this.config.collection.background.parameters.color.hex) {
                         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
-                            this.config.background.parameters.color.hex
+                            this.config.collection.background.parameters.color.hex
                         );
                         if (result) {
                             background.r = parseInt(result[1], 16);
@@ -100,8 +102,8 @@ export class AvatarGenerator {
                         }
                     }
 
-                    if (this.config.background.parameters.color.alpha) {
-                        background.alpha = this.config.background.parameters.color.alpha;
+                    if (this.config.collection.background.parameters.color.alpha) {
+                        background.alpha = this.config.collection.background.parameters.color.alpha;
                     }
 
                     woka.avatar = await sharp(woka.crop).removeAlpha().flatten({ background }).toBuffer();
@@ -131,10 +133,54 @@ export class AvatarGenerator {
 
                     break;
                 }
-                case "none": {
+                case "none":
+                case undefined: {
                     woka.avatar = woka.crop;
                     break;
                 }
+            }
+
+            if (this.config.collection.background.parameters?.name) {
+                const name = formatStringWithVariables(this.config.blockchain.metadata.name, this.config, woka);
+                // const textToSVG = TextToSVG.loadSync(this.config.collection.background.parameters.name.font);
+                // const nameSvg = textToSVG.getSVG("TEST FFFFFFFFFFFFFFFFFFF", {
+                //     fontSize: this.config.collection.background.parameters.name.size,
+                // });
+
+                // // fs.writeFileSync("test.svg", nameSvg);
+
+                // const attributes = {fill: "red", stroke: "black"};
+                // const options = {x: 0, y: 0, fontSize: 72, attributes: attributes};
+
+                // const svg = textToSVG.getSVG("hello", options);
+                // fs.writeFileSync("test.svg", svg)
+
+                //const nameSvg = `<svg > <text x="0" y="0" font-size="${this.config.collection.background.parameters.name.size}" fill="${this.config.collection.background.parameters.name.color ?? "white"}">${name}</text> </svg>`;
+
+                const nameSvg: string = textToSvg(name, {
+                    font: `${this.config.collection.background.parameters.name.size}px ${this.config.collection.background.parameters.name.font}`,
+                    color: this.config.collection.background.parameters.name.color ?? "black",
+                });
+
+                const baseNamePng = new PNG({
+                    width: 2478,
+                    height: 200,
+                    filterType: -1,
+                });
+
+                const nameImg = await baseNamePng
+                    .pack()
+                    .pipe(sharp().composite([{ input: Buffer.from(nameSvg), gravity: "centre" }]))
+                    .toBuffer();
+
+                woka.avatar = await sharp(woka.avatar)
+                    .composite([
+                        {
+                            input: nameImg,
+                            ...this.config.collection.background.parameters.name.position,
+                        },
+                    ])
+                    .toBuffer();
             }
         } else {
             woka.avatar = woka.crop;

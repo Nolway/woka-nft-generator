@@ -190,6 +190,14 @@ const config: Config = {
                     // Position of the crop on background (can be a position or points top/left)
                     position: "centre",
                 },
+                name: { // Optional: Write the name on the background
+                    font: "",
+                    size: 16,
+                    position: {
+                        top: 16,
+                        left: 16
+                    },
+                },
                 color: { // Only if is color method
                     hex: "#EACCFF",
                     alpha: 1,

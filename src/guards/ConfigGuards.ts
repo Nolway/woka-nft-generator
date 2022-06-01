@@ -30,6 +30,14 @@ export const isConfigCollectionBackgroundParameters = z.object({
             isConfigCollectionBackgroundParametersCropPositionXY,
         ]),
     }),
+    name: z
+        .object({
+            font: z.string().optional(),
+            size: z.number(),
+            color: z.string().optional(),
+            position: isConfigCollectionBackgroundParametersCropPositionXY,
+        })
+        .optional(),
 });
 export type ConfigCollectionBackgroundParameters = z.infer<typeof isConfigCollectionBackgroundParameters>;
 
