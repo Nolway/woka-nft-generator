@@ -125,11 +125,9 @@ export class AvatarGenerator {
 
                     const background = backgrounds.get(lowerWeight.toString());
 
-                    if (background) {
-                        woka.avatar = await sharp(background).composite([cropOverlay]).toBuffer();
-                    }
-
-                    woka.avatar = woka.crop;
+                    woka.avatar = background
+                        ? (woka.avatar = await sharp(background).composite([cropOverlay]).toBuffer())
+                        : woka.crop;
 
                     break;
                 }
