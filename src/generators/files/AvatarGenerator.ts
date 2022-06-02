@@ -12,7 +12,7 @@ import {
 import { Woka } from "../../guards/WokaGuards";
 import { CropPosition } from "../../guards/AvatarGuard";
 import path from "path";
-import { formatStringWithVariables } from "../../utils/MetadataUtils";
+import { formatStringWithVariables, getAccessorySide } from "../../utils/MetadataUtils";
 import { PNG } from "pngjs";
 
 sharp.cache(false);
@@ -173,11 +173,63 @@ export class AvatarGenerator {
                     .pipe(sharp().composite([{ input: Buffer.from(nameSvg), gravity: "centre" }]))
                     .toBuffer();
 
+                const side = await getAccessorySide(woka.layers["ACCESSORY"].name);
+
+                const baseSidePng = new PNG({
+                    width: 480,
+                    height: 480,
+                    filterType: -1,
+                });
+
+                const topSide = side === "right" ? 250 : side === "left" ? 500 : 0;
+
+                const extractedSide = await sharp(woka.layers["ACCESSORY"].upscaleFile)
+                    .extract({
+                        height: 250,
+                        width: 250,
+                        left: 250,
+                        top: topSide,
+                    })
+                    .toBuffer();
+
+                sharp(extractedSide).toFile(`${woka.edition}-extracted.png`);
+
+                const accessoryImg = await sharp(extractedSide)
+                    .trim()
+                    .resize({
+                        width: 340,
+                        height: 340,
+                        fit: "inside",
+                        kernel: sharp.kernel.nearest,
+                    })
+                    .toBuffer();
+
+                sharp(accessoryImg).toFile(`${woka.edition}.png`);
+
+                const sideImg = await baseSidePng
+                    .pack()
+                    .pipe(
+                        sharp().composite([
+                            {
+                                input: accessoryImg,
+                                gravity: "centre",
+                            },
+                        ])
+                    )
+                    .toBuffer();
+
+                sharp(sideImg).toFile(`${woka.edition}.png`);
+
                 woka.avatar = await sharp(woka.avatar)
                     .composite([
                         {
                             input: nameImg,
                             ...this.config.collection.background.parameters.name.position,
+                        },
+                        {
+                            input: sideImg,
+                            left: 140,
+                            top: 160,
                         },
                     ])
                     .toBuffer();

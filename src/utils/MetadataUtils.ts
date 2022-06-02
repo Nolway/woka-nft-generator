@@ -92,6 +92,14 @@ export const getAllWordsBindingParts = (): WordBindingPart[] => {
     return wordsVerified;
 };
 
+export async function getAccessorySide(name: string) {
+    const part = getAllWordsBindingParts().find(
+        (currentBinding) => currentBinding.layer === "ACCESSORY" && currentBinding.part === name
+    );
+
+    return part?.side ?? "front";
+}
+
 export function formatStringWithVariables(input: string, config: Config, woka: Woka): string {
     const wordsBinding = getWordsByWoka(woka);
     let formattedInput = input;

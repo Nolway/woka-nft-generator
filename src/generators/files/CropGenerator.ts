@@ -14,7 +14,7 @@ export class CropGenerator {
         }
 
         const sharpFile = sharp(woka.upscaleTileset).extract({
-            left: 250,
+            left: 0,
             top: 0,
             width: 250,
             height: 250,

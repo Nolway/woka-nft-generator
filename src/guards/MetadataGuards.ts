@@ -24,5 +24,6 @@ export const isWordBindingPart = z.object({
     layer: z.string(),
     part: z.string(),
     word: z.string(),
+    side: z.string().optional(),
 });
 export type WordBindingPart = z.infer<typeof isWordBindingPart>;
