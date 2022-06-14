@@ -173,6 +173,9 @@ export const isConfigBlockchainEthereumCompile = z.object({
         cost: z.number(),
         max: z.number().gte(0),
         initial: z.number().gte(0),
+        firstReleaseDate: z.number().gte(0),
+        firstReleaseEndDate: z.number().gte(0),
+        secondReleaseDate: z.number().gte(0),
     }),
     accounts: z.union([
         z.string().array(),

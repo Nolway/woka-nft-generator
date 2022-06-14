@@ -192,19 +192,15 @@ export class AvatarGenerator {
                     })
                     .toBuffer();
 
-                sharp(extractedSide).toFile(`${woka.edition}-extracted.png`);
-
                 const accessoryImg = await sharp(extractedSide)
                     .trim()
                     .resize({
-                        width: 340,
-                        height: 340,
+                        width: 300,
+                        height: 300,
                         fit: "inside",
                         kernel: sharp.kernel.nearest,
                     })
                     .toBuffer();
-
-                sharp(accessoryImg).toFile(`${woka.edition}.png`);
 
                 const sideImg = await baseSidePng
                     .pack()
@@ -217,8 +213,6 @@ export class AvatarGenerator {
                         ])
                     )
                     .toBuffer();
-
-                sharp(sideImg).toFile(`${woka.edition}.png`);
 
                 woka.avatar = await sharp(woka.avatar)
                     .composite([

@@ -16,6 +16,15 @@ async function run(): Promise<void> {
     fileContent = fileContent.replace(/\${collectionCount}/, String(config.collection.size));
     fileContent = fileContent.replace(/\${maxMintAmount}/, String(config.blockchain.compile.infos.max));
     fileContent = fileContent.replace(/\${initialMintCount}/, String(config.blockchain.compile.infos.initial));
+    fileContent = fileContent.replace(/\${firstReleaseDate}/, String(config.blockchain.compile.infos.firstReleaseDate));
+    fileContent = fileContent.replace(
+        /\${firstReleaseEndDate}/,
+        String(config.blockchain.compile.infos.firstReleaseEndDate)
+    );
+    fileContent = fileContent.replace(
+        /\${secondReleaseDate}/,
+        String(config.blockchain.compile.infos.secondReleaseDate)
+    );
 
     await fs.promises.writeFile(`${contractsDirPath}/${config.blockchain.compile.contract}.sol`, fileContent);
 }

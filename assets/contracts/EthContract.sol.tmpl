@@ -11,8 +11,9 @@ contract ${contractName} is ERC721Enumerable, Ownable {
     string public baseURI;
     string public baseExtension = ".json";
     uint256 public cost = ${cost} ether;
-    uint256 public maxSupply = ${collectionCount};
-    uint256 public maxMintAmount = ${maxMintAmount};
+    uint16 public maxSupply = ${collectionCount};
+    uint8 public maxMintAmount = ${maxMintAmount};
+    uint public firstReleaseDate = ${firstReleaseDate};
     bool public paused = false;
     mapping(address => bool) public whitelisted;
 
@@ -33,10 +34,11 @@ contract ${contractName} is ERC721Enumerable, Ownable {
     // public
     function mint(address _to, uint256 _mintAmount) public payable {
         uint256 supply = totalSupply();
-        require(!paused);
+        require(!paused, "Contract paused");
         require(_mintAmount > 0);
         require(_mintAmount <= maxMintAmount);
         require(supply + _mintAmount <= maxSupply);
+        require(firstReleaseDate >= block.timestamp, "The first release isn't started!");
 
         if (msg.sender != owner()) {
             if (whitelisted[msg.sender] != true) {
@@ -73,8 +75,8 @@ contract ${contractName} is ERC721Enumerable, Ownable {
         cost = _newCost;
     }
 
-    function setmaxMintAmount(uint256 _newmaxMintAmount) public onlyOwner {
-        maxMintAmount = _newmaxMintAmount;
+    function setMaxMintAmount(uint8 _newMaxMintAmount) public onlyOwner {
+        maxMintAmount = _newMaxMintAmount;
     }
 
     function setBaseURI(string memory _newBaseURI) public onlyOwner {
@@ -97,12 +99,11 @@ contract ${contractName} is ERC721Enumerable, Ownable {
         whitelisted[_user] = false;
     }
 
-    function withdraw() public payable onlyOwner {
-        // This line gives 5% of the initial mint to the creators of the woka-nft-generator.
-        // You can remove it if you want or keep it to support the software creators.
-        require(payable(0xB005F38dA5F110D5C422f9FB3E1177243bFa96e9).send(address(this).balance * 5 / 100));
+    function setFirstReleaseDate(uint _releaseDate) public onlyOwner {
+        firstReleaseDate = _releaseDate;
+    }
 
-        // This allows the owner to recover 95% of the available mint funds.
+    function withdraw() public payable onlyOwner {
         require(payable(msg.sender).send(address(this).balance));
     }
 }
