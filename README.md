@@ -1,6 +1,5 @@
 <h1>Woka NFT Generator 🧙‍♂️</h1>
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-1.3.0-blue.svg?cacheSeconds=2592000" />
   <a href="LICENSE.txt" target="_blank">
     <img alt="License: AGPL--3.0" src="https://img.shields.io/badge/License-AGPL--3.0-yellow.svg" />
   </a>
@@ -10,7 +9,7 @@ Easily generate your NFT collection from Wokas !
 
 ## Requirements
 
--   Node 16.14 <
+-   Node 18.11 <
 -	Yarn 1.22 <
 
 ## Install
@@ -39,7 +38,7 @@ import { Config } from "./guards/ConfigGuards";
 
 const config: Config = {
     blockchain: {
-        type: "ethereum", // ethereum|ropsten|bsc|bsc_testnet|avalanche|nahmii|nahmii_testnet
+        type: "ethereum", // ethereum|ropsten|bsc|bsc_testnet|avalanche
         compile: {
             solidity: {
                 // Optional: Hardhat Solidity config (https://hardhat.org/config/#solidity-configuration)

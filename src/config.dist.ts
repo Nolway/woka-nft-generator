@@ -3,7 +3,7 @@ import { Config } from "./guards/ConfigGuards";
 const config: Config = {
     blockchain: {
         type: "ethereum", // ethereum|solana
-        network: "avalanche", // Preset network (bsc|bsc_testnet|avalanche|avash|fuji|nahmii|nahmii_testnet) or name for custom
+        network: "avalanche", // Preset network (bsc|bsc_testnet|avalanche|avash|fuji) or name for custom
         // Need for a unknown network or an external service.
         // If you want deploy to ropsten or ethereum mainnet, please use an Alchemy URL (https://docs.alchemy.com/alchemy/tutorials/hello-world-smart-contract#step-1-connect-to-the-ethereum-network)
         // url: "https://eth-mainnet.alchemyapi.io/v2/api_key"
@@ -146,7 +146,13 @@ const config: Config = {
             /**
              * Give a rarity to a part.
              * A table will be displayed after the generation to known how rare a part is.
-             *
+             */
+            /**
+             * all: affects the percentage of rarity on the combination set that can be generated.
+             * collection-size: affects the percentage on the maximum value to generate.
+             */
+            set: "collection-size",
+            /**
              * random: Allow random rarity to all parts.
              * delimiter: Allow a rarity by a # in the file name (example: my-body-is-ready#50.png),
              *  if a file doesn't have a delimiter, the rarity will be set to 100.

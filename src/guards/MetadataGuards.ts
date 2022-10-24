@@ -1,28 +1,28 @@
 import { z } from "zod";
 
-export const isMetadataAttribute = z.object({
+export const MetadataAttribute = z.object({
     trait_type: z.string(),
     value: z.string(),
 });
-export type MetadataAttribute = z.infer<typeof isMetadataAttribute>;
+export type MetadataAttribute = z.infer<typeof MetadataAttribute>;
 
-export const isEthereumMetadata = z.object({
+export const EthereumMetadata = z.object({
     name: z.string(),
     description: z.string(),
     image: z.string(),
     woka: z.string(),
     dna: z.string(),
     edition: z.number(),
-    attributes: z.array(isMetadataAttribute),
+    attributes: z.array(MetadataAttribute),
 });
-export type EthereumMetadata = z.infer<typeof isEthereumMetadata>;
+export type EthereumMetadata = z.infer<typeof EthereumMetadata>;
 
-export const isMetadata = isEthereumMetadata;
-export type Metadata = z.infer<typeof isMetadata>;
+export const Metadata = EthereumMetadata;
+export type Metadata = z.infer<typeof Metadata>;
 
-export const isWordBindingPart = z.object({
+export const WordBindingPart = z.object({
     layer: z.string(),
     part: z.string(),
     word: z.string(),
 });
-export type WordBindingPart = z.infer<typeof isWordBindingPart>;
+export type WordBindingPart = z.infer<typeof WordBindingPart>;

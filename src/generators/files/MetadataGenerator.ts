@@ -2,7 +2,7 @@ import fs from "fs";
 import { parse } from "csv-parse/sync";
 import { metadataDirPath, wordsBindingPartsFilePath } from "../../env";
 import { Config } from "../../guards/ConfigGuards";
-import { isWordBindingPart, Metadata, WordBindingPart } from "../../guards/MetadataGuards";
+import { WordBindingPart, Metadata } from "../../guards/MetadataGuards";
 import { Woka } from "../../guards/WokaGuards";
 import { EthereumGenerator } from "../blockchains/EthereumGenerator";
 import { MetadataGenericGenerator } from "../MetadataGenericGenerator";
@@ -45,7 +45,7 @@ export class MetadataGenerator {
         const wordsVerified: WordBindingPart[] = [];
 
         for (let i = 0; i < wordsCSV.length; i++) {
-            const isWordBinding = isWordBindingPart.safeParse(wordsCSV[i]);
+            const isWordBinding = WordBindingPart.safeParse(wordsCSV[i]);
 
             if (!isWordBinding.success) {
                 console.error("Cannot read this line", wordsCSV[i], isWordBinding.error.issues);

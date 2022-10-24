@@ -1,10 +1,10 @@
 import { HardhatUserConfig } from "hardhat/types/config";
 import { artifactsDirPath, cacheDirPath, contractsDirPath } from "../../env";
-import { ConfigBlockchain, isConfigBlockchainEthereumUnknown } from "../../guards/ConfigGuards";
+import { ConfigBlockchain, ConfigBlockchainEthereumUnknown } from "../../guards/ConfigGuards";
 
 export class HardhatConfigGenerator {
     public static generate(config: ConfigBlockchain): HardhatUserConfig {
-        const isUnknownNetwork = isConfigBlockchainEthereumUnknown.safeParse(config);
+        const isUnknownNetwork = ConfigBlockchainEthereumUnknown.safeParse(config);
 
         const hardhatConfig = {
             solidity: {
@@ -41,18 +41,6 @@ export class HardhatConfigGenerator {
                 avalanche: {
                     url: "https://api.avax.network/ext/bc/C/rpc",
                     chainId: 43114,
-                    accounts: config.compile.accounts,
-                },
-                nahmii: {
-                    url: "https://l2.nahmii.io/",
-                    nvm: true,
-                    gasPrice: 15000000,
-                    accounts: config.compile.accounts,
-                },
-                nahmii_testnet: {
-                    url: "https://l2.testnet.nahmii.io/",
-                    nvm: true,
-                    gasPrice: 15000000,
                     accounts: config.compile.accounts,
                 },
                 custom: {

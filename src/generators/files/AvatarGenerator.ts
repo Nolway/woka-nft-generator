@@ -1,14 +1,14 @@
-import sharp from "sharp";
 import fs from "fs";
 import { avatarsDirPath, backgroundDirPath } from "../../env";
 import {
     ConfigCollection,
-    isConfigCollectionBackgroundParametersCropPositionGravity,
-    isConfigCollectionBackgroundParametersCropPositionXY,
+    ConfigCollectionBackgroundParametersCropPositionGravity,
+    ConfigCollectionBackgroundParametersCropPositionXY,
 } from "../../guards/ConfigGuards";
 import { Woka } from "../../guards/WokaGuards";
 import { CropPosition } from "../../guards/AvatarGuard";
 import path from "path";
+import sharp from "sharp";
 
 sharp.cache(false);
 
@@ -28,9 +28,9 @@ export class AvatarGenerator {
 
         const configCropPosition = this.config.background.parameters.crop.position;
 
-        const isCropPositionXY = isConfigCollectionBackgroundParametersCropPositionXY.safeParse(configCropPosition);
+        const isCropPositionXY = ConfigCollectionBackgroundParametersCropPositionXY.safeParse(configCropPosition);
         const isCropPositionGravity =
-            isConfigCollectionBackgroundParametersCropPositionGravity.safeParse(configCropPosition);
+            ConfigCollectionBackgroundParametersCropPositionGravity.safeParse(configCropPosition);
 
         if (isCropPositionXY.success) {
             return {

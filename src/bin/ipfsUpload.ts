@@ -4,7 +4,7 @@ import { getLocalConfig } from "../utils/ConfigUtils";
 import { avatarsDirPath, buildDirPath, metadataDirPath, wokasDirPath } from "../env";
 import { FileBuffer, UploadResult } from "../guards/UploaderGuard";
 import { UploadManager } from "../uploaders/UploadManager";
-import { isMetadata, Metadata } from "../guards/MetadataGuards";
+import { Metadata, Metadata } from "../guards/MetadataGuards";
 import { MetadataGenerator } from "../generators/files/MetadataGenerator";
 import { z } from "zod";
 
@@ -87,7 +87,7 @@ async function run() {
 
         // Convert Buffer to String then a JSON object and check if it's a Metadata object
         try {
-            jsonData = isMetadata.parse(JSON.parse(rawData.toString()));
+            jsonData = Metadata.parse(JSON.parse(rawData.toString()));
         } catch (err) {
             if (err instanceof z.ZodError) {
                 console.log(err.issues);

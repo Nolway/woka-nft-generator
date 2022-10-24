@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { isConfigCollectionBackgroundParametersCropPositionGravity } from "./ConfigGuards";
+import { ConfigCollectionBackgroundParametersCropPositionGravity } from "./ConfigGuards";
 
-export const isCropPosition = z.union([
+export const CropPosition = z.union([
     z.object({
         left: z.number().gte(0),
         top: z.number().gte(0),
     }),
     z.object({
-        gravity: isConfigCollectionBackgroundParametersCropPositionGravity,
+        gravity: ConfigCollectionBackgroundParametersCropPositionGravity,
     }),
 ]);
-export type CropPosition = z.infer<typeof isCropPosition>;
+export type CropPosition = z.infer<typeof CropPosition>;

@@ -1,7 +1,7 @@
 import axios from "axios";
 import FormData from "form-data";
 import { ConfigIpfsPinata } from "../guards/ConfigGuards";
-import { FileBuffer, isPinataUploaderResult, UploadResult } from "../guards/UploaderGuard";
+import { FileBuffer, PinataUploaderResult, UploadResult } from "../guards/UploaderGuard";
 import { GenericUploader } from "./GenericUploader";
 
 export class PinataUploader implements GenericUploader {
@@ -23,7 +23,7 @@ export class PinataUploader implements GenericUploader {
             },
         });
 
-        const pinataResult = isPinataUploaderResult.parse(result.data);
+        const pinataResult = PinataUploaderResult.parse(result.data);
 
         return {
             hash: pinataResult.IpfsHash,

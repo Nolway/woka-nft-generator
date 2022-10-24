@@ -1,6 +1,6 @@
 import fs from "fs";
 import { configPath } from "../env";
-import { Config, isConfig } from "../guards/ConfigGuards";
+import { Config } from "../guards/ConfigGuards";
 
 export async function getLocalConfig(): Promise<Config> {
     if (!fs.existsSync(configPath)) {
@@ -8,7 +8,7 @@ export async function getLocalConfig(): Promise<Config> {
     }
 
     const configFile = await import(configPath);
-    return isConfig.parse(configFile.default);
+    return Config.parse(configFile.default);
 }
 
 export function getLocalConfigSync(): Config {
@@ -35,7 +35,7 @@ export function getLocalConfigSync(): Config {
 
     const config = JSON.parse(removeTraillingCommaConfig);
 
-    return isConfig.parse(config);
+    return Config.parse(config);
 }
 
 export function removeCodeComments(code: string) {

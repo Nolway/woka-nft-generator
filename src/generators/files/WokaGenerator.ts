@@ -9,7 +9,28 @@ import { LoadedLayers, Woka, WokaLayers, WokaTexture } from "../../guards/WokaGu
 sharp.cache(false);
 
 export class WokaGenerator {
-    constructor(private config: Config, private layers: LoadedLayers) {}
+    private availableOccurences: { [x: string]: number[] } = {};
+
+    constructor(private config: Config, private layers: LoadedLayers) {
+        if (config.collection.rarity?.set === "collection-size") {
+            for (const layer of Object.keys(this.layers)) {
+                let computedWeight = 0;
+                layers[layer].forEach((texture) => {
+                    computedWeight += texture.weight;
+                });
+
+                for (const texture of layers[layer]) {
+                    if (!this.availableOccurences[layer]) {
+                        this.availableOccurences[layer] = [];
+                    }
+
+                    this.availableOccurences[layer].push(
+                        (((texture.weight * 100) / computedWeight) * config.collection.size) / 100
+                    );
+                }
+            }
+        }
+    }
 
     public generateCollection(): Woka[] {
         const wokas: Woka[] = [];
@@ -33,7 +54,7 @@ export class WokaGenerator {
 
         do {
             for (const layer of Object.keys(this.layers)) {
-                layers[layer] = this.getRandomTexture(this.layers[layer]);
+                layers[layer] = this.getRandomTexture(layer, this.layers[layer]);
             }
 
             layers = this.aggrgateConstraints(layers);
@@ -60,7 +81,7 @@ export class WokaGenerator {
         };
     }
 
-    private getRandomTexture(textures: WokaTexture[]): WokaTexture {
+    private getRandomTexture(layer: string, textures: WokaTexture[]): WokaTexture {
         if (textures.length < 1) {
             return {
                 name: "None",
@@ -72,8 +93,19 @@ export class WokaGenerator {
         const weights: number[] = [];
         let i: number;
 
+        const availableTexture = [];
+
         for (i = 0; i < textures.length; i++) {
+            if (this.config.collection.rarity?.set === "collection-size" && this.availableOccurences[layer][i] === 0) {
+                continue;
+            }
+
+            availableTexture.push(textures[i]);
             weights[i] = textures[i].weight + (weights[i - 1] || 0);
+        }
+
+        if (availableTexture.length === 0) {
+            throw new Error(`Not enought assets in ${layer} layer`);
         }
 
         const random = Math.random() * weights[weights.length - 1];
@@ -82,7 +114,7 @@ export class WokaGenerator {
             if (weights[i] > random) break;
         }
 
-        return textures[i];
+        return availableTexture[i];
     }
 
     private aggrgateConstraints(layers: WokaLayers): WokaLayers {

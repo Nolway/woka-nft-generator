@@ -1,14 +1,14 @@
 import { z } from "zod";
 
-export const isConfigCollectionBackgroundParametersCropPositionXY = z.object({
+export const ConfigCollectionBackgroundParametersCropPositionXY = z.object({
     left: z.number().gte(0),
     top: z.number().gte(0),
 });
 export type ConfigCollectionBackgroundParametersCropPositionXY = z.infer<
-    typeof isConfigCollectionBackgroundParametersCropPositionXY
+    typeof ConfigCollectionBackgroundParametersCropPositionXY
 >;
 
-export const isConfigCollectionBackgroundParametersCropPositionGravity = z.enum([
+export const ConfigCollectionBackgroundParametersCropPositionGravity = z.enum([
     "centre",
     "north",
     "east",
@@ -20,136 +20,137 @@ export const isConfigCollectionBackgroundParametersCropPositionGravity = z.enum(
     "northwest",
 ]);
 export type ConfigCollectionBackgroundParametersCropPositionGravity = z.infer<
-    typeof isConfigCollectionBackgroundParametersCropPositionGravity
+    typeof ConfigCollectionBackgroundParametersCropPositionGravity
 >;
 
-export const isConfigCollectionBackgroundParameters = z.object({
+export const ConfigCollectionBackgroundParameters = z.object({
     crop: z.object({
         position: z.union([
-            isConfigCollectionBackgroundParametersCropPositionGravity,
-            isConfigCollectionBackgroundParametersCropPositionXY,
+            ConfigCollectionBackgroundParametersCropPositionGravity,
+            ConfigCollectionBackgroundParametersCropPositionXY,
         ]),
     }),
 });
-export type ConfigCollectionBackgroundParameters = z.infer<typeof isConfigCollectionBackgroundParameters>;
+export type ConfigCollectionBackgroundParameters = z.infer<typeof ConfigCollectionBackgroundParameters>;
 
-export const isConfigCollectionBackgroundParametersColor = z.object({
+export const ConfigCollectionBackgroundParametersColor = z.object({
     hex: z.string(),
     alpha: z.number().gte(0),
 });
-export type ConfigCollectionBackgroundParametersColor = z.infer<typeof isConfigCollectionBackgroundParametersColor>;
+export type ConfigCollectionBackgroundParametersColor = z.infer<typeof ConfigCollectionBackgroundParametersColor>;
 
-export const isConfigCollectionMethodBackgroundColor = z.object({
+export const ConfigCollectionMethodBackgroundColor = z.object({
     method: z.literal("color"),
-    parameters: isConfigCollectionBackgroundParameters.merge(
+    parameters: ConfigCollectionBackgroundParameters.merge(
         z.object({
-            color: isConfigCollectionBackgroundParametersColor.optional(),
+            color: ConfigCollectionBackgroundParametersColor.optional(),
         })
     ),
 });
-export type ConfigCollectionMethodBackgroundColor = z.infer<typeof isConfigCollectionMethodBackgroundColor>;
+export type ConfigCollectionMethodBackgroundColor = z.infer<typeof ConfigCollectionMethodBackgroundColor>;
 
-export const isConfigCollectionMethodBackground = z.union([
+export const ConfigCollectionMethodBackground = z.union([
     z.object({
         method: z.enum(["image", "linked", "rarity", "none"]),
-        parameters: isConfigCollectionBackgroundParameters.optional(),
+        parameters: ConfigCollectionBackgroundParameters.optional(),
     }),
-    isConfigCollectionMethodBackgroundColor,
+    ConfigCollectionMethodBackgroundColor,
 ]);
-export type ConfigCollectionMethodBackground = z.infer<typeof isConfigCollectionMethodBackground>;
+export type ConfigCollectionMethodBackground = z.infer<typeof ConfigCollectionMethodBackground>;
 
-export const isConfigCollectionRarityEdges = z.object({
+export const ConfigCollectionRarityEdges = z.object({
     min: z.number().positive(),
     max: z.number().positive(),
 });
-export type ConfigCollectionRarityEdges = z.infer<typeof isConfigCollectionRarityEdges>;
+export type ConfigCollectionRarityEdges = z.infer<typeof ConfigCollectionRarityEdges>;
 
-export const isConfigCollectionRarityLabel = z.object({
+export const ConfigCollectionRarityLabel = z.object({
     weight: z.number(),
     label: z.string(),
 });
-export type ConfigCollectionRarityLabel = z.infer<typeof isConfigCollectionRarityLabel>;
+export type ConfigCollectionRarityLabel = z.infer<typeof ConfigCollectionRarityLabel>;
 
-export const isConfigCollectionRarity = z.object({
+export const ConfigCollectionRarity = z.object({
+    set: z.enum(["all", "collection-size"]),
     method: z.enum(["random", "delimiter", "none"]),
-    edges: isConfigCollectionRarityEdges.optional(),
-    labels: isConfigCollectionRarityLabel.array().optional(),
+    edges: ConfigCollectionRarityEdges.optional(),
+    labels: ConfigCollectionRarityLabel.array().optional(),
 });
-export type ConfigCollectionRarity = z.infer<typeof isConfigCollectionRarity>;
+export type ConfigCollectionRarity = z.infer<typeof ConfigCollectionRarity>;
 
-export const isConfigCollectionCropMarging = z.object({
+export const ConfigCollectionCropMarging = z.object({
     left: z.number().positive(),
     right: z.number().positive(),
     top: z.number().positive(),
     bottom: z.number().positive(),
 });
-export type ConfigCollectionCropMarging = z.infer<typeof isConfigCollectionCropMarging>;
+export type ConfigCollectionCropMarging = z.infer<typeof ConfigCollectionCropMarging>;
 
-export const isConfigCollectionCrop = z.object({
+export const ConfigCollectionCrop = z.object({
     size: z.number().positive(),
-    marging: isConfigCollectionCropMarging.optional(),
+    marging: ConfigCollectionCropMarging.optional(),
 });
-export type ConfigCollectionCrop = z.infer<typeof isConfigCollectionCrop>;
+export type ConfigCollectionCrop = z.infer<typeof ConfigCollectionCrop>;
 
-export const isConfigCollectionLayerConstraintLinkedTextures = z.object({
+export const ConfigCollectionLayerConstraintLinkedTextures = z.object({
     on: z.string(),
     with: z.string(),
 });
-export type isConfigCollectionLayerConstraintLinkedTextures = z.infer<
-    typeof isConfigCollectionLayerConstraintLinkedTextures
+export type ConfigCollectionLayerConstraintLinkedTextures = z.infer<
+    typeof ConfigCollectionLayerConstraintLinkedTextures
 >;
 
-export const isConfigCollectionLayerConstraintLinked = z.object({
+export const ConfigCollectionLayerConstraintLinked = z.object({
     layer: z.string(),
-    textures: z.array(isConfigCollectionLayerConstraintLinkedTextures),
+    textures: z.array(ConfigCollectionLayerConstraintLinkedTextures),
 });
-export type isConfigCollectionLayerConstraintLinked = z.infer<typeof isConfigCollectionLayerConstraintLinked>;
+export type ConfigCollectionLayerConstraintLinked = z.infer<typeof ConfigCollectionLayerConstraintLinked>;
 
-export const isConfigCollectionLayerConstraintsWithWithout = z.object({
+export const ConfigCollectionLayerConstraintsWithWithout = z.object({
     with: z.record(z.string(), z.union([z.literal("*"), z.string().array()])).optional(),
     without: z.record(z.string(), z.union([z.literal("*"), z.string().array()])).optional(),
 });
 
-export const isConfigCollectionLayerConstraints = z
+export const ConfigCollectionLayerConstraints = z
     .object({
-        linked: isConfigCollectionLayerConstraintLinked.optional(),
-        parts: z.record(z.string(), isConfigCollectionLayerConstraintsWithWithout).optional(),
+        linked: ConfigCollectionLayerConstraintLinked.optional(),
+        parts: z.record(z.string(), ConfigCollectionLayerConstraintsWithWithout).optional(),
     })
-    .merge(isConfigCollectionLayerConstraintsWithWithout);
-export type ConfigCollectionLayerConstraints = z.infer<typeof isConfigCollectionLayerConstraints>;
+    .merge(ConfigCollectionLayerConstraintsWithWithout);
+export type ConfigCollectionLayerConstraints = z.infer<typeof ConfigCollectionLayerConstraints>;
 
-export const isConfigCollectionLayerSkip = z.object({
+export const ConfigCollectionLayerSkip = z.object({
     allow: z.boolean(),
     value: z.string(),
     rarity: z.number().gte(0),
 });
-export type ConfigCollectionLayerSkip = z.infer<typeof isConfigCollectionLayerSkip>;
+export type ConfigCollectionLayerSkip = z.infer<typeof ConfigCollectionLayerSkip>;
 
-export const isConfigCollectionLayer = z.object({
+export const ConfigCollectionLayer = z.object({
     name: z.string(),
-    skip: isConfigCollectionLayerSkip.optional(),
-    constraints: isConfigCollectionLayerConstraints.optional(),
+    skip: ConfigCollectionLayerSkip.optional(),
+    constraints: ConfigCollectionLayerConstraints.optional(),
 });
-export type ConfigCollectionLayer = z.infer<typeof isConfigCollectionLayer>;
+export type ConfigCollectionLayer = z.infer<typeof ConfigCollectionLayer>;
 
-export const isConfigCollection = z.object({
+export const ConfigCollection = z.object({
     size: z.number().positive(),
-    layers: z.array(isConfigCollectionLayer),
-    crop: isConfigCollectionCrop.optional(),
-    rarity: isConfigCollectionRarity.optional(),
-    background: isConfigCollectionMethodBackground.optional(),
+    layers: z.array(ConfigCollectionLayer),
+    crop: ConfigCollectionCrop.optional(),
+    rarity: ConfigCollectionRarity.optional(),
+    background: ConfigCollectionMethodBackground.optional(),
 });
-export type ConfigCollection = z.infer<typeof isConfigCollection>;
+export type ConfigCollection = z.infer<typeof ConfigCollection>;
 
-export const isConfigBlockchainEthereumMetadata = z.object({
+export const ConfigBlockchainEthereumMetadata = z.object({
     name: z.string(),
     description: z.string(),
     image: z.string(),
     woka: z.string(),
 });
-export type ConfigBlockchainEthereumMetadata = z.infer<typeof isConfigBlockchainEthereumMetadata>;
+export type ConfigBlockchainEthereumMetadata = z.infer<typeof ConfigBlockchainEthereumMetadata>;
 
-export const isConfigBlockchainEthereumCompile = z.object({
+export const ConfigBlockchainEthereumCompile = z.object({
     solidity: z.optional(
         z.object({
             version: z.union([z.string().regex(/^(\d+\.)?(\d+\.)?(\*|\d+)$/), z.literal("")]),
@@ -177,13 +178,13 @@ export const isConfigBlockchainEthereumCompile = z.object({
         }),
     ]),
 });
-export type ConfigBlockchainEthereumCompile = z.infer<typeof isConfigBlockchainEthereumCompile>;
+export type ConfigBlockchainEthereumCompile = z.infer<typeof ConfigBlockchainEthereumCompile>;
 
-export const isConfigBlockchainEthereum = z.object({
+export const ConfigBlockchainEthereum = z.object({
     type: z.literal("ethereum"),
-    network: z.enum(["bsc", "bsc_testnet", "avalanche", "avash", "fuji", "nahmii", "nahmii_testnet"]),
-    metadata: isConfigBlockchainEthereumMetadata,
-    compile: isConfigBlockchainEthereumCompile,
+    network: z.enum(["bsc", "bsc_testnet", "avalanche", "avash", "fuji"]),
+    metadata: ConfigBlockchainEthereumMetadata,
+    compile: ConfigBlockchainEthereumCompile,
     scripting: z
         .object({
             address: z.string(),
@@ -195,55 +196,55 @@ export const isConfigBlockchainEthereum = z.object({
         })
         .optional(),
 });
-export type ConfigBlockchainEthereum = z.infer<typeof isConfigBlockchainEthereum>;
+export type ConfigBlockchainEthereum = z.infer<typeof ConfigBlockchainEthereum>;
 
-export const isConfigBlockchainEthereumUnknown = isConfigBlockchainEthereum.extend({
+export const ConfigBlockchainEthereumUnknown = ConfigBlockchainEthereum.extend({
     network: z.string(),
     url: z.string(),
 });
-export type ConfigBlockchainEthereumUnknown = z.infer<typeof isConfigBlockchainEthereumUnknown>;
+export type ConfigBlockchainEthereumUnknown = z.infer<typeof ConfigBlockchainEthereumUnknown>;
 
-export const isConfigBlockchain = z.union([isConfigBlockchainEthereum, isConfigBlockchainEthereumUnknown]);
-export type ConfigBlockchain = z.infer<typeof isConfigBlockchain>;
+export const ConfigBlockchain = z.union([ConfigBlockchainEthereum, ConfigBlockchainEthereumUnknown]);
+export type ConfigBlockchain = z.infer<typeof ConfigBlockchain>;
 
-export const isConfigIpfsFolders = z.object({
+export const ConfigIpfsFolders = z.object({
     wokas: z.string(),
     avatars: z.string(),
     metadata: z.string(),
 });
-export type ConfigIpfsFolders = z.infer<typeof isConfigIpfsFolders>;
+export type ConfigIpfsFolders = z.infer<typeof ConfigIpfsFolders>;
 
-export const isConfigIpfsMoralisAuth = z.object({
+export const ConfigIpfsMoralisAuth = z.object({
     key: z.string(),
 });
-export type ConfigIpfsMoralisAuth = z.infer<typeof isConfigIpfsMoralisAuth>;
+export type ConfigIpfsMoralisAuth = z.infer<typeof ConfigIpfsMoralisAuth>;
 
-export const isConfigIpfsMoralis = z.object({
+export const ConfigIpfsMoralis = z.object({
     service: z.literal("moralis"),
-    auth: isConfigIpfsMoralisAuth,
-    folders: isConfigIpfsFolders,
+    auth: ConfigIpfsMoralisAuth,
+    folders: ConfigIpfsFolders,
 });
-export type ConfigIpfsMoralis = z.infer<typeof isConfigIpfsMoralis>;
+export type ConfigIpfsMoralis = z.infer<typeof ConfigIpfsMoralis>;
 
-export const isConfigIpfsPinataAuth = z.object({
+export const ConfigIpfsPinataAuth = z.object({
     key: z.string(),
     secret: z.string(),
 });
-export type ConfigIpfsPinataAuth = z.infer<typeof isConfigIpfsPinataAuth>;
+export type ConfigIpfsPinataAuth = z.infer<typeof ConfigIpfsPinataAuth>;
 
-export const isConfigIpfsPinata = z.object({
+export const ConfigIpfsPinata = z.object({
     service: z.literal("pinata"),
-    auth: isConfigIpfsPinataAuth,
-    folders: isConfigIpfsFolders,
+    auth: ConfigIpfsPinataAuth,
+    folders: ConfigIpfsFolders,
 });
-export type ConfigIpfsPinata = z.infer<typeof isConfigIpfsPinata>;
+export type ConfigIpfsPinata = z.infer<typeof ConfigIpfsPinata>;
 
-export const isConfigIpfs = z.union([isConfigIpfsPinata, isConfigIpfsMoralis]);
-export type ConfigIpfs = z.infer<typeof isConfigIpfs>;
+export const ConfigIpfs = z.union([ConfigIpfsPinata, ConfigIpfsMoralis]);
+export type ConfigIpfs = z.infer<typeof ConfigIpfs>;
 
-export const isConfig = z.object({
-    blockchain: isConfigBlockchain,
-    ipfs: isConfigIpfs,
-    collection: isConfigCollection,
+export const Config = z.object({
+    blockchain: ConfigBlockchain,
+    ipfs: ConfigIpfs,
+    collection: ConfigCollection,
 });
-export type Config = z.infer<typeof isConfig>;
+export type Config = z.infer<typeof Config>;

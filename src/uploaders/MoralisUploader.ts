@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ConfigIpfsMoralis } from "../guards/ConfigGuards";
-import { FileBuffer, isMoralisUploaderResult, UploadResult } from "../guards/UploaderGuard";
+import { FileBuffer, MoralisUploaderResult, UploadResult } from "../guards/UploaderGuard";
 import { GenericUploader } from "./GenericUploader";
 
 export class MoralisUploader implements GenericUploader {
@@ -25,7 +25,7 @@ export class MoralisUploader implements GenericUploader {
             },
         });
 
-        const moralisResult = isMoralisUploaderResult.parse(result.data);
+        const moralisResult = MoralisUploaderResult.parse(result.data);
 
         return {
             hash: moralisResult[0].path.split("/")[4],

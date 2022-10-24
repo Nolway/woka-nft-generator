@@ -1,24 +1,24 @@
 import { z } from "zod";
 
-export const isWokaTexture = z.object({
-	name: z.string(),
-	weight: z.number().nonpositive(),
-	file: z.string().optional(),
+export const WokaTexture = z.object({
+    name: z.string(),
+    weight: z.number().nonpositive(),
+    file: z.instanceof(Buffer).optional(),
 });
-export type WokaTexture = z.infer<typeof isWokaTexture>;
+export type WokaTexture = z.infer<typeof WokaTexture>;
 
-export const isWokaLayers = z.record(isWokaTexture);
-export type WokaLayers = z.infer<typeof isWokaLayers>;
+export const WokaLayers = z.record(WokaTexture);
+export type WokaLayers = z.infer<typeof WokaLayers>;
 
-export const isWoka = z.object({
-	edition: z.number().positive(),
-	dna: z.string(),
-	layers: isWokaLayers,
-	tileset: z.instanceof(Buffer).optional(),
-	crop: z.instanceof(Buffer).optional(),
-	avatar: z.instanceof(Buffer).optional(),
+export const Woka = z.object({
+    edition: z.number().positive(),
+    dna: z.string(),
+    layers: WokaLayers,
+    tileset: z.instanceof(Buffer).optional(),
+    crop: z.instanceof(Buffer).optional(),
+    avatar: z.instanceof(Buffer).optional(),
 });
-export type Woka = z.infer<typeof isWoka>;
+export type Woka = z.infer<typeof Woka>;
 
-export const isLoadedLayers = z.record(z.array(isWokaTexture));
-export type LoadedLayers = z.infer<typeof isLoadedLayers>;
+export const LoadedLayers = z.record(z.array(WokaTexture));
+export type LoadedLayers = z.infer<typeof LoadedLayers>;

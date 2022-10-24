@@ -11,6 +11,7 @@ import { MetadataGenerator } from "../generators/files/MetadataGenerator";
 import { CropGenerator } from "../generators/files/CropGenerator";
 import { AvatarGenerator } from "../generators/files/AvatarGenerator";
 import { getLocalConfig } from "../utils/ConfigUtils";
+import sharp from "sharp";
 
 let loadedLayers: LoadedLayers;
 const wokasGenerated: Woka[] = [];
@@ -153,7 +154,7 @@ async function loadLayer(config: ConfigCollection, layer: string): Promise<WokaT
         loadedTextures.push({
             name,
             weight,
-            file: filePath,
+            file: await sharp(filePath).toBuffer(),
         });
     }
 

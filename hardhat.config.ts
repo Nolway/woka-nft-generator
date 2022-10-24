@@ -2,7 +2,6 @@ import fs from "fs";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
-import "@nahmii/hardhat-nvm";
 import { hardhatConfigGeneratedPath } from "./src/env";
 import { HardhatUserConfig } from "hardhat/types";
 
