@@ -68,9 +68,9 @@ export class WokaGenerator {
             }
 
             attempts++;
-        } while (!layers || attempts < 1000);
+        } while (Object.keys(layers).length === 0 && attempts < 1000);
 
-        if (attempts === 100) {
+        if (attempts === 1000) {
             throw new Error("Cannot generate a new edition! Maybe something was wrong with constraints?");
         }
 
