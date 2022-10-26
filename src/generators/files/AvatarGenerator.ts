@@ -274,9 +274,9 @@ export class AvatarGenerator {
         woka.avatar = await sharpGif
             .createGif({
                 delay: 200,
-                transparent: true,
+                transparent: Boolean(!background && !backgroundColor),
                 format: "rgba4444",
-                maxColors: 512,
+                maxColors: background ? 256 : 512,
             })
             .addFrame(frames)
             .toBuffer();
