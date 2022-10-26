@@ -8,7 +8,8 @@ import {
 import { Woka } from "../../guards/WokaGuards";
 import { CropPosition } from "../../guards/AvatarGuard";
 import path from "path";
-import sharp from "sharp";
+import sharp, { Sharp } from "sharp";
+import sharpGif from "sharp-gif2";
 
 sharp.cache(false);
 
@@ -20,13 +21,13 @@ export class AvatarGenerator {
     }
 
     private getCropPosition(): CropPosition {
-        if (!this.config?.background?.parameters?.crop?.position) {
+        if (!this.config.avatar.background?.parameters?.crop?.position) {
             return {
                 gravity: "centre",
             };
         }
 
-        const configCropPosition = this.config.background.parameters.crop.position;
+        const configCropPosition = this.config.avatar.background.parameters.crop.position;
 
         const isCropPositionXY = ConfigCollectionBackgroundParametersCropPositionXY.safeParse(configCropPosition);
         const isCropPositionGravity =
@@ -48,17 +49,28 @@ export class AvatarGenerator {
     }
 
     public async generate(woka: Woka, backgrounds: Map<string, Buffer>): Promise<void> {
+        switch (this.config.avatar.type) {
+            case "image":
+                await this.generateImage(woka, backgrounds);
+                break;
+            case "gif":
+                await this.generateGif(woka, backgrounds);
+                break;
+        }
+    }
+
+    private async generateImage(woka: Woka, backgrounds: Map<string, Buffer>) {
         if (!woka.crop) {
             throw new Error(`Undefined crop on woka edition ${woka.edition}`);
         }
 
-        if (this.config.background) {
+        if (this.config.avatar.background) {
             const cropOverlay = {
                 input: woka.crop,
                 ...this.cropPosition,
             };
 
-            switch (this.config.background.method) {
+            switch (this.config.avatar.background.method) {
                 case "image": {
                     if (backgrounds.size < 1) {
                         throw new Error("You don't have any background in the assets folder");
@@ -78,7 +90,7 @@ export class AvatarGenerator {
                     break;
                 }
                 case "color": {
-                    if (!this.config?.background?.parameters?.color) {
+                    if (!this.config.avatar.background?.parameters?.color) {
                         throw new Error("Undefined color property for \"color\" background method");
                     }
 
@@ -89,9 +101,9 @@ export class AvatarGenerator {
                         alpha: undefined,
                     };
 
-                    if (this.config.background.parameters.color.hex) {
+                    if (this.config.avatar.background.parameters.color.hex) {
                         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
-                            this.config.background.parameters.color.hex
+                            this.config.avatar.background.parameters.color.hex
                         );
                         if (result) {
                             background.r = parseInt(result[1], 16);
@@ -100,8 +112,8 @@ export class AvatarGenerator {
                         }
                     }
 
-                    if (this.config.background.parameters.color.alpha) {
-                        background.alpha = this.config.background.parameters.color.alpha;
+                    if (this.config.avatar.background.parameters.color.alpha) {
+                        background.alpha = this.config.avatar.background.parameters.color.alpha;
                     }
 
                     woka.avatar = await sharp(woka.crop).removeAlpha().flatten({ background }).toBuffer();
@@ -141,6 +153,135 @@ export class AvatarGenerator {
         }
     }
 
+    private async generateGif(woka: Woka, backgrounds: Map<string, Buffer>) {
+        if (!woka.tileset) {
+            throw new Error(`Undefined tileset on woka edition ${woka.edition}`);
+        }
+
+        if (this.config.avatar.type !== "gif") {
+            throw new Error("Avatar type isn't gif");
+        }
+
+        const avatarSize = this.config.avatar.size;
+
+        let widthCounter = 3;
+        let heightCounter = 4;
+
+        const resizedTileset = sharp(woka.tileset).resize(avatarSize * widthCounter, avatarSize * heightCounter, {
+            kernel: sharp.kernel.nearest,
+        });
+
+        let background: Sharp | undefined;
+        let backgroundColor: sharp.RGBA | undefined;
+
+        if (this.config.avatar.background) {
+            switch (this.config.avatar.background.method) {
+                case "image": {
+                    if (backgrounds.size < 1) {
+                        throw new Error("You don't have any background in the assets folder");
+                    }
+
+                    background = sharp([...backgrounds.values()][Math.floor(Math.random() * (backgrounds.size - 1))]);
+                    break;
+                }
+                case "linked": {
+                    background = sharp([...backgrounds.values()][woka.edition - 1]);
+                    break;
+                }
+                case "color": {
+                    if (!this.config.avatar.background?.parameters?.color) {
+                        throw new Error("Undefined color property for \"color\" background method");
+                    }
+
+                    const backgroundSharp: sharp.RGBA = {
+                        r: undefined,
+                        g: undefined,
+                        b: undefined,
+                        alpha: undefined,
+                    };
+
+                    if (this.config.avatar.background.parameters.color.hex) {
+                        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
+                            this.config.avatar.background.parameters.color.hex
+                        );
+                        if (result) {
+                            backgroundSharp.r = parseInt(result[1], 16);
+                            backgroundSharp.g = parseInt(result[2], 16);
+                            backgroundSharp.b = parseInt(result[3], 16);
+                        }
+                    }
+
+                    if (this.config.avatar.background.parameters.color.alpha) {
+                        backgroundSharp.alpha = this.config.avatar.background.parameters.color.alpha;
+                    }
+
+                    backgroundColor = backgroundSharp;
+                    break;
+                }
+                case "rarity": {
+                    let lowerWeight: number | undefined;
+
+                    for (const layer of Object.values(woka.layers)) {
+                        if (!lowerWeight) {
+                            lowerWeight = layer.weight;
+                        } else if (lowerWeight > layer.weight) {
+                            lowerWeight = layer.weight;
+                        }
+                    }
+
+                    if (!lowerWeight) {
+                        break;
+                    }
+
+                    const backgroundFounded = backgrounds.get(lowerWeight.toString());
+
+                    if (backgroundFounded) {
+                        background = sharp(backgroundFounded);
+                    }
+                    break;
+                }
+            }
+        }
+
+        const frames: Sharp[] = [];
+
+        heightCounter--;
+
+        while (heightCounter !== -1) {
+            widthCounter--;
+
+            let frame = resizedTileset.extract({
+                left: widthCounter * avatarSize,
+                top: heightCounter * avatarSize,
+                width: avatarSize,
+                height: avatarSize,
+            });
+
+            if (background) {
+                frame = background.composite([{ input: await frame.toBuffer(), gravity: "centre" }]);
+            } else if (backgroundColor) {
+                frame.removeAlpha().flatten({ background: backgroundColor }).toBuffer();
+            }
+
+            frames.unshift(sharp(await frame.toBuffer()));
+
+            if (widthCounter === 0) {
+                heightCounter--;
+                widthCounter = 3;
+            }
+        }
+
+        const gif = await sharpGif
+            .createGif({
+                delay: 200,
+                transparent: true,
+            })
+            .addFrame(frames)
+            .toSharp();
+
+        woka.avatar = await gif.toBuffer();
+    }
+
     public async getLocalBackgrounds(): Promise<Map<string, Buffer>> {
         const loadedBackgrounds: Map<string, Buffer> = new Map<string, Buffer>();
 
@@ -159,11 +300,13 @@ export class AvatarGenerator {
         return loadedBackgrounds;
     }
 
-    public static async exportLocal(woka: Woka): Promise<void> {
+    public async exportLocal(woka: Woka): Promise<void> {
         if (!woka.avatar) {
             throw new Error(`Undefined avatar on woka edition ${woka.edition}`);
         }
 
-        await sharp(woka.avatar).toFile(avatarsDirPath + woka.edition + ".png");
+        await sharp(woka.avatar, { animated: this.config.avatar.type === "gif" }).toFile(
+            avatarsDirPath + woka.edition + "." + (this.config.avatar.type === "image" ? "png" : "gif")
+        );
     }
 }

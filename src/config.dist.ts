@@ -132,16 +132,6 @@ const config: Config = {
                 },
             },
         ],
-        crop: {
-            size: 512, // Optional: Resize of Woka in pixels to stick it above background (must be smaller than the background)
-            marging: {
-                // Optional: Add a margin to the woka in pixel
-                left: 64,
-                right: 64,
-                top: 64,
-                bottom: 64,
-            },
-        },
         rarity: {
             /**
              * Give a rarity to a part.
@@ -181,26 +171,40 @@ const config: Config = {
                 },
             ],
         },
-        background: {
-            /**
-             * Optional: Method for adding a background (transparent by default)
-             * none: Transparent background.
-             * image: Get a random background from the backgrounds folder.
-             * linked: Use the background with the same name in the backgrounds folder.
-             * color: Use a color.
-             * rarity: Use the background related to the rarest part (background names must match with the rarity weight).
-             */
-            method: "image",
-            /*parameters: {
-                crop: {
-                    // Position of the crop on background (can be a position or points top/left)
-                    position: "centre",
-                },
-                color: { // Only if is color method
-                    hex: "#EACCFF",
-                    alpha: 1,
-                },
-            },*/
+        avatar: {
+            type: "gif",
+            size: 512,
+            background: {
+                /**
+                 * Optional: Method for adding a background (transparent by default)
+                 * none: Transparent background.
+                 * image: Get a random background from the backgrounds folder.
+                 * linked: Use the background with the same name in the backgrounds folder.
+                 * color: Use a color.
+                 * rarity: Use the background related to the rarest part (background names must match with the rarity weight).
+                 */
+                method: "image",
+                /*parameters: {
+                    crop: {
+                        // Position of the crop on background (can be a position or points top/left)
+                        position: "centre",
+                    },
+                    color: { // Only if is color method
+                        hex: "#EACCFF",
+                        alpha: 1,
+                    },
+                },*/
+            },
+            // crop: {
+            //     size: 512, // Optional: Resize of Woka in pixels to stick it above background (must be smaller than the background)
+            //     marging: {
+            //         // Optional: Add a margin to the woka in pixel
+            //         left: 64,
+            //         right: 64,
+            //         top: 64,
+            //         bottom: 64,
+            //     },
+            // },
         },
     },
 };

@@ -41,7 +41,10 @@ async function generate(config: Config): Promise<void> {
     // Initiate generators
     const wokaGenerator = new WokaGenerator(config, loadedLayers);
     const metadataGenerator = new MetadataGenerator(config);
-    const cropGenerator = new CropGenerator(config.collection.crop);
+    let cropGenerator;
+    if (config.collection.avatar.type === "image") {
+        cropGenerator = new CropGenerator(config.collection.avatar.crop);
+    }
     const avatarGenerator = new AvatarGenerator(config.collection);
 
     // Generate the Woka collection
@@ -56,13 +59,15 @@ async function generate(config: Config): Promise<void> {
         await metadataGenerator.exportLocal(metadata);
         console.log(`Edition ${woka.edition} metadata has been generated`);
 
-        await cropGenerator.generate(woka);
-        await CropGenerator.exportLocal(woka);
-        console.log(`Edition ${woka.edition} crop has been created!`);
+        if (cropGenerator) {
+            await cropGenerator.generate(woka);
+            await CropGenerator.exportLocal(woka);
+            console.log(`Edition ${woka.edition} crop has been created!`);
+        }
 
         const backgrounds = await avatarGenerator.getLocalBackgrounds();
         await avatarGenerator.generate(woka, backgrounds);
-        await AvatarGenerator.exportLocal(woka);
+        await avatarGenerator.exportLocal(woka);
         console.log(`Edition ${woka.edition} avatar has been generated`);
     }
 

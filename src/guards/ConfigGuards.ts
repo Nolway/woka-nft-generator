@@ -92,6 +92,20 @@ export const ConfigCollectionCrop = z.object({
 });
 export type ConfigCollectionCrop = z.infer<typeof ConfigCollectionCrop>;
 
+export const ConfigCollectionAvatar = z.discriminatedUnion("type", [
+    z.object({
+        type: z.literal("image"),
+        crop: ConfigCollectionCrop.optional(),
+        background: ConfigCollectionMethodBackground.optional(),
+    }),
+    z.object({
+        type: z.literal("gif"),
+        size: z.number().min(32),
+        background: ConfigCollectionMethodBackground.optional(),
+    }),
+]);
+export type ConfigCollectionAvatar = z.infer<typeof ConfigCollectionAvatar>;
+
 export const ConfigCollectionLayerConstraintLinkedTextures = z.object({
     on: z.string(),
     with: z.string(),
@@ -136,9 +150,8 @@ export type ConfigCollectionLayer = z.infer<typeof ConfigCollectionLayer>;
 export const ConfigCollection = z.object({
     size: z.number().positive(),
     layers: z.array(ConfigCollectionLayer),
-    crop: ConfigCollectionCrop.optional(),
     rarity: ConfigCollectionRarity.optional(),
-    background: ConfigCollectionMethodBackground.optional(),
+    avatar: ConfigCollectionAvatar,
 });
 export type ConfigCollection = z.infer<typeof ConfigCollection>;
 
