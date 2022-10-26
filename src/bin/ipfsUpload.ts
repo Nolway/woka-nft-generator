@@ -4,7 +4,7 @@ import { getLocalConfig } from "../utils/ConfigUtils";
 import { avatarsDirPath, buildDirPath, metadataDirPath, wokasDirPath } from "../env";
 import { FileBuffer, UploadResult } from "../guards/UploaderGuard";
 import { UploadManager } from "../uploaders/UploadManager";
-import { Metadata, Metadata } from "../guards/MetadataGuards";
+import { Metadata } from "../guards/MetadataGuards";
 import { MetadataGenerator } from "../generators/files/MetadataGenerator";
 import { z } from "zod";
 
@@ -98,7 +98,8 @@ async function run() {
         jsonData.woka = `ipfs://${wokaHash.hash}/${edition}.png`;
         jsonData.image = `ipfs://${avatarHash.hash}/${edition}.png`;
 
-        MetadataGenerator.exportLocal(jsonData);
+        const metadataGenerator = new MetadataGenerator(config);
+        metadataGenerator.exportLocal(jsonData);
 
         console.log(`Metadata of Woka edition ${edition} has been updated`);
 

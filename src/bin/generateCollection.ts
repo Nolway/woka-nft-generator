@@ -53,7 +53,7 @@ async function generate(config: Config): Promise<void> {
         console.log(`Edition ${woka.edition} woka has been generated with DNA: ${woka.dna}`);
 
         const metadata = metadataGenerator.generate(woka);
-        await MetadataGenerator.exportLocal(metadata);
+        await metadataGenerator.exportLocal(metadata);
         console.log(`Edition ${woka.edition} metadata has been generated`);
 
         await cropGenerator.generate(woka);
@@ -65,6 +65,9 @@ async function generate(config: Config): Promise<void> {
         await AvatarGenerator.exportLocal(woka);
         console.log(`Edition ${woka.edition} avatar has been generated`);
     }
+
+    await metadataGenerator.exportAggregate();
+    console.log("Metadata aggregate has been generated");
 }
 
 async function loadLayers(config: ConfigCollection): Promise<LoadedLayers> {

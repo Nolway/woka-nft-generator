@@ -9,6 +9,7 @@ import { MetadataGenericGenerator } from "../MetadataGenericGenerator";
 
 export class MetadataGenerator {
     private wordsBindingParts: WordBindingPart[];
+    private metadataAggregate: Metadata[] = [];
 
     constructor(private readonly config: Config) {
         this.wordsBindingParts = this.getAllWordsBindingParts();
@@ -58,7 +59,12 @@ export class MetadataGenerator {
         return wordsVerified;
     }
 
-    public static async exportLocal(metadata: Metadata) {
+    public async exportLocal(metadata: Metadata) {
+        this.metadataAggregate.push(metadata);
         await fs.promises.writeFile(`${metadataDirPath}${metadata.edition}.json`, JSON.stringify(metadata, null, 2));
+    }
+
+    public async exportAggregate() {
+        await fs.promises.writeFile(`${metadataDirPath}metadata.json`, JSON.stringify(this.metadataAggregate, null, 2));
     }
 }
