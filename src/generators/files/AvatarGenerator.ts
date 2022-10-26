@@ -271,15 +271,15 @@ export class AvatarGenerator {
             }
         }
 
-        const gif = await sharpGif
+        woka.avatar = await sharpGif
             .createGif({
                 delay: 200,
                 transparent: true,
+                format: "rgba4444",
+                maxColors: 512,
             })
             .addFrame(frames)
-            .toSharp();
-
-        woka.avatar = await gif.toBuffer();
+            .toBuffer();
     }
 
     public async getLocalBackgrounds(): Promise<Map<string, Buffer>> {
