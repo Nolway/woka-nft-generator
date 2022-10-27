@@ -9,7 +9,7 @@ import { LoadedLayers, Woka, WokaLayers, WokaTexture } from "../../guards/WokaGu
 sharp.cache(false);
 
 export class WokaGenerator {
-    private availableOccurences: { [x: string]: number[] } = {};
+    private availableOccurences: { [x: string]: Map<string, number> } = {};
 
     constructor(private config: Config, private layers: LoadedLayers) {
         if (config.collection.rarity?.set === "collection-size") {
@@ -21,11 +21,12 @@ export class WokaGenerator {
 
                 for (const texture of layers[layer]) {
                     if (!this.availableOccurences[layer]) {
-                        this.availableOccurences[layer] = [];
+                        this.availableOccurences[layer] = new Map<string, number>();
                     }
 
-                    this.availableOccurences[layer].push(
-                        (((texture.weight * 100) / computedWeight) * config.collection.size) / 100
+                    this.availableOccurences[layer].set(
+                        texture.name,
+                        Math.round((((texture.weight * 100) / computedWeight) * config.collection.size) / 100)
                     );
                 }
             }
@@ -74,6 +75,8 @@ export class WokaGenerator {
             throw new Error("Cannot generate a new edition! Maybe something was wrong with constraints?");
         }
 
+        this.decrementeAvailableOccurences(layers);
+
         return {
             edition,
             dna: this.generateDNA(layers),
@@ -91,20 +94,23 @@ export class WokaGenerator {
         }
 
         const weights: number[] = [];
-        let i: number;
+        let i = 0;
 
-        const availableTexture = [];
-
-        for (i = 0; i < textures.length; i++) {
-            if (this.config.collection.rarity?.set === "collection-size" && this.availableOccurences[layer][i] === 0) {
+        const availableTextures = [];
+        for (const texture of textures) {
+            if (
+                this.config.collection.rarity?.set === "collection-size" &&
+                this.availableOccurences[layer].get(texture.name) === 0
+            ) {
                 continue;
             }
 
-            availableTexture.push(textures[i]);
+            availableTextures.push(texture);
             weights[i] = textures[i].weight + (weights[i - 1] || 0);
+            i++;
         }
 
-        if (availableTexture.length === 0) {
+        if (availableTextures.length === 0) {
             throw new Error(`Not enought assets in ${layer} layer`);
         }
 
@@ -114,7 +120,7 @@ export class WokaGenerator {
             if (weights[i] > random) break;
         }
 
-        return availableTexture[i];
+        return availableTextures[i];
     }
 
     private aggrgateConstraints(layers: WokaLayers): WokaLayers {
@@ -245,7 +251,9 @@ export class WokaGenerator {
                 if (partConstraints.without) {
                     for (const constraintLayer in partConstraints.without) {
                         if (!layers[constraintLayer]) {
-                            throw new Error(`Unknown layer ${constraintLayer} on without constraint`);
+                            throw new Error(
+                                `Unknown layer ${constraintLayer} on without constraint parts ${layers[layerName].name}`
+                            );
                         }
 
                         if (
@@ -275,6 +283,30 @@ export class WokaGenerator {
         }
 
         return newLayers;
+    }
+
+    private decrementeAvailableOccurences(wokaLayers: WokaLayers) {
+        if (!this.config.collection.rarity || this.config.collection.rarity.set !== "collection-size") {
+            return;
+        }
+
+        for (const layer of Object.keys(wokaLayers)) {
+            const configLayer = this.config.collection.layers.find((layerTemp) => layerTemp.name === layer);
+
+            const textureName = wokaLayers[layer].name;
+
+            if (configLayer && textureName === configLayer.skip?.value) {
+                continue;
+            }
+
+            const textureOccurence = this.availableOccurences[layer].get(textureName);
+
+            if (!textureOccurence || textureOccurence === 0) {
+                throw new Error(`Undefined texture or empty pull occurence for ${textureName}`);
+            }
+
+            this.availableOccurences[layer].set(textureName, textureOccurence - 1);
+        }
     }
 
     private generateDNA(textures: WokaLayers): string {
